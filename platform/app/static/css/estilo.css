@@ -170,7 +170,7 @@ p, li, .reglas span, .aviso.ok, .recibo b { text-shadow: var(--halo); }
 /* La capa de rótulos no brilla: es lo más pequeño y lo más tenue, y el halo
    era justo lo que la emborronaba bajo el barrido. */
 .estado, .rotulo, .reto .dif, .pie, .marca small, .total small,
-.visor-fuera, .salida button, input::placeholder { text-shadow: none; }
+.salida button, input::placeholder { text-shadow: none; }
 
 p { margin: 0 0 var(--paso); }
 
@@ -263,8 +263,7 @@ button:hover { color: var(--vidrio); background: var(--p-alto); text-shadow: non
 
 .boton:focus-visible,
 button:focus-visible,
-a.reto:focus-visible,
-.visor-fuera:focus-visible {
+a.reto:focus-visible {
   outline: 1px solid var(--p-alto);
   outline-offset: 2px;
 }
@@ -543,7 +542,14 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 .clasificacion li:first-child { color: var(--p-max); text-shadow: var(--halo-max); }
 .clasificacion .puesto { color: var(--p-bajo); }
 .clasificacion .pts { font-variant-numeric: tabular-nums; }
-.pie { text-align: center; color: var(--p-bajo); letter-spacing: .2em; }
+.pie {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3ch;
+  color: var(--p-bajo);
+  letter-spacing: .2em;
+}
 
 /* ============================================================ movimiento */
 
@@ -596,14 +602,6 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
   border: 0;                 /* el panel ya enmarca: no anidamos marcos */
   background: var(--vidrio);
 }
-
-.visor-fuera {
-  align-self: flex-end;
-  margin-top: calc(var(--paso) * .6);
-  font-size: 1.05rem;
-  color: var(--p-bajo);
-}
-.visor-fuera[hidden] { display: none; }
 
 .reto.mirando { background: rgba(99, 232, 92, .12); color: var(--p-max); }
 .reto.mirando .id::before { content: "›"; margin-right: .5ch; color: var(--p-max); }
@@ -732,4 +730,13 @@ body.pantalla-fin .pantalla { width: min(130ch, 100%); }
   html { font-size: 16px; }
   .reglas li { font-size: 1rem; }
   .caja-unica input { font-size: 1.2rem; }
+}
+
+/* Si el marcador no cabe entero, la última fila se cortaba por la mitad y
+   parecía un fallo. Un desvanecido al pie dice que hay más abajo, y es lo
+   que haría un fósforo al apagarse. */
+.pantalla-marcador .clasificacion,
+.cierre-tabla .clasificacion {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
 }

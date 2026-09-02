@@ -10,7 +10,7 @@
 }
 * { box-sizing:border-box; }
 body {
-  margin:0; padding:2.5rem 2rem; min-height:100vh;
+  margin:0; padding:1.6rem 2rem; min-height:100vh;
   background:var(--vidrio); color:var(--p-med);
   font-family:"Inconsolata","DejaVu Sans Mono",monospace;
   font-size:1.05rem; line-height:1.6;
@@ -19,9 +19,9 @@ body {
 main { max-width:70ch; margin:0 auto; }
 h1 {
   font-family:"VT323","Inconsolata",monospace; font-weight:400;
-  font-size:2.6rem; line-height:1; letter-spacing:.06em; text-transform:uppercase;
+  font-size:2rem; line-height:1; letter-spacing:.06em; text-transform:uppercase;
   color:var(--p-max); text-shadow:0 0 .05em currentColor,0 0 .7em rgba(182,255,143,.7);
-  margin:0 0 1.5rem;
+  margin:0 0 1rem;
 }
 a { color:var(--p-alto); }
 a:hover { color:var(--p-max); }
@@ -37,7 +37,7 @@ ul a:hover { background:rgba(99,232,92,.1); color:var(--p-max); }
   border-left: 2px solid var(--p-linea);
   padding-left: 1.5ch;
   color: var(--p-bajo);
-  margin-top: 2rem;
+  margin-top: 1.2rem;
 }
 .apunte b { color: var(--p-alto); font-weight: 700; }
 kbd {
@@ -48,8 +48,30 @@ kbd {
 
 .grande {
   font-family: "VT323", "Inconsolata", monospace;
-  font-size: 2rem;
-  line-height: 1.2;
+  font-size: 1.5rem;
+  line-height: 1.25;
   color: var(--p-max);
   text-shadow: 0 0 .05em currentColor, 0 0 .6em rgba(182, 255, 143, .6);
+}
+
+/* Escrito del color del fondo: invisible hasta que se selecciona.
+   Funciona dentro del visor, sin menús ni atajos, que es lo único con lo que
+   se puede contar en un kiosco. */
+.oculto {
+  color: var(--vidrio);
+  text-shadow: none;
+  user-select: text;
+}
+.oculto::selection { background: var(--p-med); color: var(--vidrio); }
+
+/* Dentro del visor, 100vh es la altura del marco, no la de la pantalla.
+   En un monitor bajo el marco se queda en 250-300 px y la página tiene que
+   caber ahí: si no, la pista se va por debajo y nadie la lee. */
+@media (max-height: 430px) {
+  body { padding: 1rem 1.5rem; font-size: .95rem; line-height: 1.45; }
+  h1 { font-size: 1.5rem; margin: 0 0 .6rem; }
+  .grande { font-size: 1.15rem; line-height: 1.2; }
+  .apunte { margin-top: .8rem; padding-left: 1.2ch; }
+  ul { gap: .4rem; }
+  ul a { padding: .5rem 1ch; }
 }

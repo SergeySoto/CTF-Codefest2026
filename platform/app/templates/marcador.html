@@ -15,7 +15,10 @@
   {% endfor %}
 </ol>
 
-<p class="pie">{{ total }} participantes<span class="cursor">█</span></p>
+<div class="pie">
+  <span>{{ total }} participantes<span class="cursor">█</span></span>
+  {% if volver %}<a class="boton" href="/">Volver</a>{% endif %}
+</div>
 
 <script>
 const fila = (j, i) => {

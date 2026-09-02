@@ -145,7 +145,6 @@
   const visor = document.getElementById("visor");
   const visorVacio = document.getElementById("visor-vacio");
   const visorTitulo = document.getElementById("visor-titulo");
-  const visorFuera = document.getElementById("visor-fuera");
 
   document.querySelectorAll(".reto").forEach((fila) => {
     fila.addEventListener("click", (e) => {
@@ -156,8 +155,6 @@
       visor.src = url;
       visor.hidden = false;
       visorVacio.hidden = true;
-      visorFuera.href = url;
-      visorFuera.hidden = false;
       visorTitulo.textContent = `[ ${fila.querySelector(".nombre").textContent} ]`;
 
       document.querySelectorAll(".reto.mirando").forEach((o) => o.classList.remove("mirando"));

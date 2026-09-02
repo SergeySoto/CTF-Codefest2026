@@ -71,9 +71,9 @@ def lluvia(columnas: int = 26, con_bandera: bool = False):
     el otro lado de la sala y el reto dejaría de serlo.
     """
     rnd = random.Random()
-    # nunca en las columnas del borde: ahí la pantalla recorta los caracteres
-    # y la bandera se lee a medias
-    portadora = rnd.randrange(3, columnas - 3) if con_bandera else -1
+    # En la mitad derecha: a la izquierda el reloj y su halo se comen el fondo,
+    # y en las columnas del borde la pantalla recorta los caracteres.
+    portadora = rnd.randrange(columnas // 2 + 1, columnas - 3) if con_bandera else -1
     gotas = []
     for i in range(columnas):
         if i == portadora:
@@ -312,12 +312,16 @@ async def fin(request: Request):
 
 
 @app.get("/marcador", response_class=HTMLResponse)
-async def marcador(request: Request):
+async def marcador(request: Request, volver: int = 0):
+    # `volver` solo lo pone el enlace de la pantalla de inicio. La pantalla
+    # pública del stand abre /marcador a secas y no enseña ningún botón.
     top = clasificacion(15)
     with db.conexion() as con:
         total = con.execute("SELECT COUNT(*) AS n FROM jugadores").fetchone()["n"]
     return plantillas.TemplateResponse(
-        request, "marcador.html", {"top": top, "total": total, "lluvia": lluvia()}
+        request,
+        "marcador.html",
+        {"top": top, "total": total, "volver": bool(volver), "lluvia": lluvia()},
     )
 
 
