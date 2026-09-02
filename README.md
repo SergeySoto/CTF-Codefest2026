@@ -22,8 +22,11 @@ El boca a boca es la mecánica principal del juego.
 5. Los retos se abren **dentro de la pantalla**, sin perder de vista el reloj.
 6. Se puede salir a propósito con un botón; si se sale sin querer, la partida
    se recupera desde la pantalla de inicio con el tiempo que quedaba.
-7. Las reglas se muestran en pantalla y se explican en voz alta antes de empezar.
-8. Al final del día, quien más puntos tenga se lleva el premio.
+7. Al acabar el tiempo se ve el tanteo **y el marcador**, con la fila del
+   jugador señalada. Si ha quedado fuera del top, su fila se añade igualmente.
+8. El marcador también se consulta desde la pantalla de inicio.
+9. Las reglas se muestran en pantalla y se explican en voz alta antes de empezar.
+10. Al final del día, quien más puntos tenga se lleva el premio.
 
 ### Reto 0
 
@@ -78,7 +81,13 @@ y `clip-path`; el JS solo lleva el estado.
 
 **Aspecto:** terminal de fósforo verde. Rejilla de caracteres, marcos de un
 píxel, líneas de barrido, viñeta y lluvia de código de fondo. Se respeta
-`prefers-reduced-motion`.
+`prefers-reduced-motion`. Ver `DESIGN.md`.
+
+**La página nunca se desplaza.** Es un kiosco: cada pantalla cabe entera en
+el monitor. Lo que puede desbordar (el índice de retos, el visor, el
+marcador) se desplaza dentro de su propio panel. Los tamaños están atados a
+la altura del viewport, así que la interfaz encoge en vez de recortarse;
+comprobado sin scroll de 1080 a 700 px de alto.
 
 ## Puesta en marcha
 

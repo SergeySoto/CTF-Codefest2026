@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}Fin · Codefest CTF{% endblock %}
+{% block clase %}pantalla-fin{% endblock %}
 {% block contenido %}
 
 <div class="estado">
@@ -8,27 +9,63 @@
   <span>{{ jugador.apodo }}</span>
 </div>
 
-<p class="total linea" style="--t:80ms">
-  {{ jugador.puntos }}
-  <small>puntos · puesto {{ posicion }}</small>
-</p>
+<div class="cierre">
 
-<section class="panel linea" style="--t:220ms">
-  <h2 class="titulo">[ registro ]</h2>
-  {% if encontradas %}
-  <ul class="recibo">
-    {% for e in encontradas %}
-    <li><span>{{ e.reto }}</span> <b>+{{ e.puntos }}</b></li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p class="recibo vacio">Ninguna bandera esta vez. Las banderas no caducan: pregunta a quien haya jugado antes y vuelve a intentarlo.</p>
-  {% endif %}
-</section>
+  <div class="cierre-yo">
+    <p class="total linea" style="--t:80ms">
+      {{ jugador.puntos }}
+      <small>puntos · puesto {{ posicion }}</small>
+    </p>
 
-<p class="consejo linea" style="--t:340ms">
-  &gt; Cuéntale al siguiente lo que has encontrado.<span class="cursor">█</span>
-</p>
+    <section class="panel linea" style="--t:220ms">
+      <h2 class="titulo">[ registro ]</h2>
+      {% if encontradas %}
+      <ul class="recibo">
+        {% for e in encontradas %}
+        <li><span>{{ e.reto }}</span> <b>+{{ e.puntos }}</b></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="recibo vacio">Ninguna bandera esta vez. Las banderas no caducan: pregunta a quien haya jugado antes y vuelve a intentarlo.</p>
+      {% endif %}
+    </section>
 
-<script>setTimeout(() => location.assign("/"), 20000);</script>
+    <p class="consejo linea" style="--t:340ms">
+      &gt; Cuéntale al siguiente lo que has encontrado.<span class="cursor">█</span>
+    </p>
+  </div>
+
+  <section class="panel cierre-tabla linea" style="--t:300ms">
+    <h2 class="titulo">[ marcador ]</h2>
+    <ol class="clasificacion">
+      {% for j in top %}
+      <li {% if j.id == jugador.id %}class="soy-yo"{% endif %}>
+        <span class="puesto">{{ '%02d'|format(loop.index) }}</span>
+        <span class="nombre">{{ j.apodo }}</span>
+        <span class="pts">{{ j.puntos }}</span>
+      </li>
+      {% endfor %}
+      {% if fuera %}
+      <li class="soy-yo aparte">
+        <span class="puesto">{{ '%02d'|format(posicion) }}</span>
+        <span class="nombre">{{ jugador.apodo }}</span>
+        <span class="pts">{{ jugador.puntos }}</span>
+      </li>
+      {% endif %}
+    </ol>
+  </section>
+
+</div>
+
+<p class="relevo">El puesto queda libre en <b id="cuenta">20</b> s</p>
+
+<script>
+let quedan = 20;
+const n = document.getElementById("cuenta");
+setInterval(() => {
+  quedan -= 1;
+  n.textContent = quedan;
+  if (quedan <= 0) location.assign("/");
+}, 1000);
+</script>
 {% endblock %}

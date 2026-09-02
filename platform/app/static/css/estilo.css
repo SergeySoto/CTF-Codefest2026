@@ -45,18 +45,21 @@
 
 * { box-sizing: border-box; }
 
-html { font-size: 18px; }
+/* Kiosco: la página no se desplaza nunca. Lo que puede desbordar (el índice
+   de retos, el visor, la clasificación) se desplaza dentro de su propio
+   panel, así que nada queda fuera de alcance sin que la pantalla se mueva. */
+html { font-size: 18px; height: 100%; overflow: hidden; }
 
 body {
   margin: 0;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
   background: var(--vidrio);
   color: var(--p-med);
   font-family: var(--texto);
   font-size: 1.1rem;
   line-height: 1.6;
   letter-spacing: .01em;
-  overflow-x: hidden;
 }
 
 /* ---------------------------------------------------------- el tubo CRT
@@ -117,8 +120,24 @@ body {
   position: relative;
   z-index: 1;
   width: min(92ch, 100%);
+  height: 100dvh;
   margin: 0 auto;
-  padding: calc(var(--paso) * 3) calc(var(--paso) * 2) calc(var(--paso) * 6);
+  padding: calc(var(--paso) * 2.5) calc(var(--paso) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--paso);
+  overflow: hidden;
+}
+
+/* Válvula de seguridad: en una pantalla baja, el bloque central cede antes
+   que recortarse. La página sigue quieta. */
+.desborda {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--paso) * 1.5);
 }
 
 /* -------------------------------------------------------- tipos y ritmo */
@@ -168,7 +187,6 @@ a:hover { color: var(--p-max); text-shadow: var(--halo-max); }
   border: 1px solid var(--p-linea);
   background: var(--vidrio-2);
   padding: calc(var(--paso) * 2) calc(var(--paso) * 2) calc(var(--paso) * 1.5);
-  margin-bottom: calc(var(--paso) * 2);
 }
 
 .panel > .titulo {
@@ -439,7 +457,7 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 }
 
 /* salir: confirmación en línea, nunca un diálogo del navegador */
-.salida { margin-top: calc(var(--paso) * 2); text-align: right; }
+.salida { text-align: right; }
 .salida button { color: var(--p-bajo); border-color: var(--p-muerto); font-size: 1.05rem; }
 .salida button:hover { color: var(--vidrio); background: var(--p-bajo); }
 .confirmar[hidden] { display: none; }
@@ -513,20 +531,29 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
    de vista, que es lo único que importa cuando quedan cinco minutos. */
 
 .taller {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(30ch, 34ch) 1fr;
   gap: calc(var(--paso) * 2);
-  align-items: start;
+  align-items: stretch;
 }
 
-.retos-panel { padding-left: 0; padding-right: 0; }
+.retos-panel {
+  padding-left: 0;
+  padding-right: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.retos-panel .retos { overflow-y: auto; min-height: 0; }
 .retos-panel .titulo { left: 2ch; }
 .retos-panel .retos { border-top: none; }
 
 .visor-panel {
   display: flex;
   flex-direction: column;
-  min-height: 60vh;
+  min-height: 0;
   padding-bottom: calc(var(--paso) * 1);
 }
 
@@ -535,8 +562,7 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 #visor {
   flex: 1;
   width: 100%;
-  height: calc(100vh - 26rem);
-  min-height: 55vh;
+  min-height: 0;
   border: 0;                 /* el panel ya enmarca: no anidamos marcos */
   background: var(--vidrio);
 }
@@ -559,7 +585,8 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 }
 
 /* la partida necesita ancho: índice y visor conviven en pantalla */
-body.pantalla-juego .pantalla { width: min(150ch, 100%); padding-top: calc(var(--paso) * 2); }
+body.pantalla-juego .pantalla { width: min(150ch, 100%); }
+body.pantalla-fin .pantalla { width: min(130ch, 100%); }
 
 /* el rótulo bajo la cifra necesita aire: si no, se mete en el panel siguiente */
 .total { margin-bottom: calc(var(--paso) * 2.5); }
@@ -572,4 +599,99 @@ body.pantalla-juego .pantalla { width: min(150ch, 100%); padding-top: calc(var(-
   .reto { grid-template-columns: 4ch 1fr 4ch; row-gap: 0; }
   .reto .dif { grid-column: 2 / 3; grid-row: 2; }
   .reto .marca-ok { grid-column: 3; grid-row: 1; }
+}
+
+
+/* ===================================================== cierre de sesión
+   Al acabar el tiempo el jugador ve su tanteo y, al lado, dónde ha caído.
+   Es el único momento en que el marcador le importa de verdad. */
+
+.cierre {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(34ch, 46ch);
+  gap: calc(var(--paso) * 3);
+  align-items: start;
+}
+
+.cierre-yo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--paso);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.cierre-tabla {
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.cierre-tabla .clasificacion {
+  margin: 0;
+  overflow-y: auto;
+  min-height: 0;
+}
+.cierre-tabla .clasificacion li { font-size: 1.15rem; }
+.cierre-tabla .clasificacion .puesto,
+.cierre-tabla .clasificacion .pts { font-size: 1.5rem; }
+
+/* la fila del jugador: si ha quedado fuera del top se añade separada */
+.clasificacion .soy-yo {
+  color: var(--p-max);
+  text-shadow: var(--halo-max);
+  border-bottom-color: var(--p-linea);
+}
+.clasificacion .soy-yo .puesto { color: var(--p-alto); }
+.clasificacion .aparte { border-top: 1px dashed var(--p-linea); margin-top: var(--paso); }
+
+.relevo { margin: 0; color: var(--p-bajo); text-align: right; letter-spacing: .1em; }
+.relevo b {
+  color: var(--p-alto);
+  font-family: var(--pantalla);
+  font-size: 1.5rem;
+  padding: 0 .3ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.ver-marcador { margin: 0; text-align: right; }
+.ver-marcador a { letter-spacing: .06em; }
+
+/* ---------------------------------------------------- marcador a pantalla */
+
+.pantalla-marcador .clasificacion { flex: 1; min-height: 0; overflow-y: auto; margin: 0; }
+.pantalla-marcador .marca { margin-bottom: var(--paso); }
+
+/* barras de desplazamiento internas, en el mundo */
+.desborda, .retos, .cierre-yo, .clasificacion { scrollbar-width: thin; scrollbar-color: var(--p-linea) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--p-linea); }
+::-webkit-scrollbar-track { background: transparent; }
+
+@media (max-width: 62rem) {
+  .cierre { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------- pantallas bajas (kiosco)
+   No sabemos la altura del monitor del stand. Antes que dejar que un panel
+   se desplace y esconda la marca, encoge todo hasta que quepa. */
+
+@media (max-height: 900px) {
+  :root { --paso: .6rem; }
+  .marca { font-size: clamp(2.2rem, 7vh, 4rem); margin-bottom: var(--paso); }
+  .marca small { font-size: .85rem; }
+  .desborda { gap: var(--paso); }
+  .reglas li { margin-bottom: calc(var(--paso) * .8); font-size: 1.05rem; }
+  .panel { padding: calc(var(--paso) * 1.6) calc(var(--paso) * 2) calc(var(--paso) * 1.2); }
+  .crono .cifras { font-size: clamp(2.6rem, 9vh, 6rem); }
+  .tanteo .puntos { font-size: clamp(2rem, 6vh, 4rem); }
+  .total { font-size: clamp(3.5rem, 14vh, 8rem); }
+}
+
+@media (max-height: 720px) {
+  html { font-size: 16px; }
+  .reglas li { font-size: 1rem; }
+  .caja-unica input { font-size: 1.2rem; }
 }

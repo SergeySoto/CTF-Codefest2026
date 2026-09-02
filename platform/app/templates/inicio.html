@@ -1,46 +1,53 @@
 {% extends "base.html" %}
 {% block contenido %}
 
-<h1 class="marca linea" style="--t:0ms">
-  CODEFEST<br>CTF
-  <small>terminal 01 · sistema listo</small>
-</h1>
+<div class="desborda">
 
-{% if activa %}
-<section class="panel recuperar linea" style="--t:120ms">
-  <h2 class="titulo">[ sesión en curso ]</h2>
-  <p>Tu partida sigue abierta, <b>{{ activa.apodo }}</b>. No has perdido nada.</p>
-  <p class="queda">quedan {{ '%02d'|format(quedan // 60) }}:{{ '%02d'|format(quedan % 60) }}</p>
-  <form method="get" action="/jugar">
-    <button type="submit">Volver a mi partida</button>
-  </form>
-</section>
-{% else %}
+  <h1 class="marca linea" style="--t:0ms">
+    CODEFEST<br>CTF
+    <small>terminal 01 · sistema listo</small>
+  </h1>
 
-<section class="panel linea" style="--t:120ms">
-  <h2 class="titulo">[ reglas ]</h2>
-  <ol class="reglas">
-    <li><span>Tienes <b>{{ duracion }} minutos</b>. El reloj no arranca hasta que pulsas EMPEZAR.</span></li>
-    <li><span>Fallar <b>no resta</b> puntos. Solo cuesta tiempo, así que prueba sin miedo.</span></li>
-    <li><span>Una <b>bandera</b> es un código escondido. Se parece a esto: <code>flag&#123;ejemplo&#125;</code></span></li>
-    <li><span>Hay <b>una sola caja</b> para todas. Escribe la que sea: el sistema reconoce cuál es.</span></li>
-    <li><span>Los retos de la lista <b>se abren en la misma pantalla</b>. No pierdes de vista el reloj.</span></li>
-    <li><span>Puntos = <b>dificultad × segundos que te queden</b>. Cuanto antes, más vale.</span></li>
-    <li><span>Las banderas <b>no caducan</b>: la que encontró el jugador anterior también te sirve. Pregúntale.</span></li>
-  </ol>
+  {% if activa %}
+  <section class="panel recuperar linea" style="--t:120ms">
+    <h2 class="titulo">[ sesión en curso ]</h2>
+    <p>Tu partida sigue abierta, <b>{{ activa.apodo }}</b>. No has perdido nada.</p>
+    <p class="queda">quedan {{ '%02d'|format(quedan // 60) }}:{{ '%02d'|format(quedan % 60) }}</p>
+    <form method="get" action="/jugar">
+      <button type="submit">Volver a mi partida</button>
+    </form>
+  </section>
+  {% else %}
 
-</section>
+  <section class="panel linea" style="--t:120ms">
+    <h2 class="titulo">[ reglas ]</h2>
+    <ol class="reglas">
+      <li><span>Tienes <b>{{ duracion }} minutos</b>. El reloj no arranca hasta que pulsas EMPEZAR.</span></li>
+      <li><span>Fallar <b>no resta</b> puntos. Solo cuesta tiempo, así que prueba sin miedo.</span></li>
+      <li><span>Una <b>bandera</b> es un código escondido. Se parece a esto: <code>flag&#123;ejemplo&#125;</code></span></li>
+      <li><span>Hay <b>una sola caja</b> para todas. Escribe la que sea: el sistema reconoce cuál es.</span></li>
+      <li><span>Los retos de la lista <b>se abren en la misma pantalla</b>. No pierdes de vista el reloj.</span></li>
+      <li><span>Puntos = <b>dificultad × segundos que te queden</b>. Cuanto antes, más vale.</span></li>
+      <li><span>Las banderas <b>no caducan</b>: la que encontró el jugador anterior también te sirve. Pregúntale.</span></li>
+    </ol>
+  </section>
 
-<form method="post" action="/empezar" class="linea" style="--t:240ms">
-  <div class="panel">
-    <h2 class="titulo">[ identifícate ]</h2>
-    <div class="prompt arranque">
-      <input name="apodo" maxlength="24" required autocomplete="off"
-             placeholder="tu apodo" autofocus>
-      <button type="submit">Empezar</button>
+  <form method="post" action="/empezar" class="linea" style="--t:240ms">
+    <div class="panel">
+      <h2 class="titulo">[ identifícate ]</h2>
+      <div class="prompt arranque">
+        <input name="apodo" maxlength="24" required autocomplete="off"
+               placeholder="tu apodo" autofocus>
+        <button type="submit">Empezar</button>
+      </div>
     </div>
-  </div>
-</form>
-{% endif %}
+  </form>
+  {% endif %}
+
+  <p class="ver-marcador linea" style="--t:320ms">
+    <a href="/marcador">Ver el marcador del día ↗</a>
+  </p>
+
+</div>
 
 {% endblock %}

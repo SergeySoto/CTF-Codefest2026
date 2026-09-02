@@ -29,8 +29,7 @@ const fila = (j, i) => {
 setInterval(async () => {
   try {
     const top = await (await fetch("/api/marcador")).json();
-    const ol = document.getElementById("clasificacion");
-    ol.replaceChildren(...top.map(fila));
+    document.getElementById("clasificacion").replaceChildren(...top.map(fila));
   } catch {}
 }, 5000);
 </script>

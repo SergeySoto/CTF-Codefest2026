@@ -88,6 +88,15 @@ def retos_con_estado(jugador_id: int):
         ).fetchall()
 
 
+def clasificacion(limite: int = 15):
+    with db.conexion() as con:
+        return con.execute(
+            "SELECT id, apodo, puntos FROM jugadores "
+            "ORDER BY puntos DESC, empezado_en LIMIT ?",
+            (limite,),
+        ).fetchall()
+
+
 # ------------------------------------------------------------------- páginas
 
 @app.get("/", response_class=HTMLResponse)
@@ -261,6 +270,10 @@ async def fin(request: Request):
                WHERE e.jugador_id = ? ORDER BY e.en""",
             (jugador["id"],),
         ).fetchall()
+    top = clasificacion(10)
+    # si el jugador se ha quedado fuera del top, su fila se añade igualmente:
+    # nadie debe terminar sin verse en la lista.
+    fuera = not any(f["id"] == jugador["id"] for f in top)
     respuesta = plantillas.TemplateResponse(
         request,
         "fin.html",
@@ -268,6 +281,8 @@ async def fin(request: Request):
             "jugador": jugador,
             "posicion": posicion,
             "encontradas": encontradas,
+            "top": top,
+            "fuera": fuera,
             "lluvia": lluvia(),
         },
     )
@@ -277,10 +292,8 @@ async def fin(request: Request):
 
 @app.get("/marcador", response_class=HTMLResponse)
 async def marcador(request: Request):
+    top = clasificacion(15)
     with db.conexion() as con:
-        top = con.execute(
-            "SELECT apodo, puntos FROM jugadores ORDER BY puntos DESC, empezado_en LIMIT 15"
-        ).fetchall()
         total = con.execute("SELECT COUNT(*) AS n FROM jugadores").fetchone()["n"]
     return plantillas.TemplateResponse(
         request, "marcador.html", {"top": top, "total": total, "lluvia": lluvia()}
@@ -289,8 +302,6 @@ async def marcador(request: Request):
 
 @app.get("/api/marcador")
 async def api_marcador():
-    with db.conexion() as con:
-        top = con.execute(
-            "SELECT apodo, puntos FROM jugadores ORDER BY puntos DESC, empezado_en LIMIT 15"
-        ).fetchall()
-    return JSONResponse([dict(f) for f in top])
+    return JSONResponse([
+        {"apodo": f["apodo"], "puntos": f["puntos"]} for f in clasificacion(15)
+    ])
