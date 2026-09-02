@@ -5,11 +5,184 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reto 3</title>
   <link rel="stylesheet" href="/comun/estilo.css">
+  <style>
+    /* Solo en este reto: la terminal quiere todo el ancho del visor,
+       no la columna de lectura de 70ch que usan los demás retos. */
+    main { max-width: none; }
+  </style>
 </head>
 <body>
   <main>
     <h1>Reto 3</h1>
-    <p>Pendiente de escribir. Aquí se esconderá la bandera.</p>
+    <p>Sistema de archivos de la empresa, montado en modo lectura.
+       Alguien mencionó una copia de seguridad &laquo;olvidada&raquo;...</p>
+
+    <div class="terminal">
+      <div class="terminal-pantalla" id="pantalla" aria-live="polite"></div>
+      <div class="terminal-entrada">
+        <span class="terminal-prompt" id="prompt">usuario@stand:~$</span>
+        <input class="terminal-input" id="entrada" type="text"
+               autocomplete="off" autocapitalize="off" spellcheck="false"
+               aria-label="Comando de terminal">
+      </div>
+    </div>
+
+    <p class="apunte"><b>Pista:</b> escribe <kbd>help</kbd> para ver los comandos.</p>
   </main>
+
+<script>
+(function(){
+  // Sistema de archivos simulado. backups pesa mucho más que el resto:
+  // esa es la pista visual de "ls -la". Dentro, un archivo oculto solo
+  // aparece con -la, y "cat" revela la bandera.
+  const fs = {
+    '~': {
+      dirs: ['fotos', 'documentos', 'descargas', 'tmp', 'backups'],
+      sizes: { fotos: 128, documentos: 96, descargas: 64, tmp: 32, backups: 4096 }
+    },
+    '~/fotos':      { files: ['vacaciones.jpg', 'perfil.png'] },
+    '~/documentos': { files: ['cv.pdf', 'notas.txt'] },
+    '~/descargas':  { files: ['instalador.exe'] },
+    '~/tmp':        { files: ['cache.tmp'] },
+    '~/backups':    {
+      files: ['backup_2024.zip'],
+      hidden: ['.flag_oculta'],
+      hiddenContent: { '.flag_oculta': 'flag{ls_l4_r3v3l4_l0_0cult0}' }
+    }
+  };
+
+  let cwd = '~';
+  const pantalla = document.getElementById('pantalla');
+  const entrada = document.getElementById('entrada');
+  const prompt = document.getElementById('prompt');
+  const historial = [];
+  let indiceHist = -1;
+
+  function print(texto, cls){
+    const div = document.createElement('div');
+    div.className = 'terminal-linea' + (cls ? ' ' + cls : '');
+    div.textContent = texto;
+    pantalla.appendChild(div);
+    pantalla.scrollTop = pantalla.scrollHeight;
+  }
+
+  function printBandera(texto){
+    const p = document.createElement('p');
+    p.className = 'bandera';
+    p.textContent = texto;
+    pantalla.appendChild(p);
+    pantalla.scrollTop = pantalla.scrollHeight;
+  }
+
+  function actualizarPrompt(){
+    prompt.textContent = 'usuario@stand:' + cwd + '$';
+  }
+
+  const permDir = () => 'drwxr-xr-x';
+  const permFile = () => '-rw-r--r--';
+
+  function cmdHelp(){
+    print('Comandos disponibles:');
+    print('  ls            lista archivos y carpetas visibles');
+    print('  ls -la        lista todo, incluidos ocultos y tamaños');
+    print('  cd <carpeta>  entra en una carpeta');
+    print('  cd ..         vuelve a la carpeta anterior');
+    print('  pwd           muestra la ruta actual');
+    print('  cat <archivo> muestra el contenido de un archivo');
+    print('  clear         limpia la pantalla');
+  }
+
+  function cmdLs(mostrarTodo){
+    if (cwd === '~'){
+      const d = fs['~'];
+      if (!mostrarTodo){
+        d.dirs.forEach(n => print(n + '/'));
+      } else {
+        d.dirs.forEach(n => print(permDir() + '  ' + String(d.sizes[n]).padStart(5, ' ') + '  ' + n + '/'));
+      }
+      return;
+    }
+    const nodo = fs[cwd];
+    if (!nodo){ print('No se pudo leer el directorio.', 'terminal-error'); return; }
+    if (!mostrarTodo){
+      (nodo.files || []).forEach(f => print(f));
+    } else {
+      (nodo.files || []).forEach(f => print(permFile() + '   256  ' + f));
+      (nodo.hidden || []).forEach(f => print(permFile() + '    42  ' + f));
+    }
+  }
+
+  function cmdCd(arg){
+    if (!arg || arg === '~'){ cwd = '~'; actualizarPrompt(); return; }
+    if (arg === '..'){
+      if (cwd !== '~'){ cwd = '~'; actualizarPrompt(); }
+      return;
+    }
+    const destino = '~/' + arg;
+    if (cwd === '~' && fs[destino]){
+      cwd = destino;
+      actualizarPrompt();
+    } else {
+      print('bash: cd: ' + arg + ': no existe ese directorio', 'terminal-error');
+    }
+  }
+
+  function cmdCat(arg){
+    if (!arg){ print('cat: falta el nombre del archivo', 'terminal-error'); return; }
+    const nodo = fs[cwd];
+    if (cwd === '~' || !nodo){
+      print('cat: ' + arg + ': no existe ese archivo', 'terminal-error');
+      return;
+    }
+    if (nodo.hidden && nodo.hidden.includes(arg) && nodo.hiddenContent && nodo.hiddenContent[arg]){
+      printBandera(nodo.hiddenContent[arg]);
+      return;
+    }
+    if ((nodo.files || []).includes(arg)){
+      print('(el archivo está vacío o es binario, no se puede mostrar)');
+      return;
+    }
+    print('cat: ' + arg + ': no existe ese archivo', 'terminal-error');
+  }
+
+  function ejecutar(linea){
+    const texto = linea.trim();
+    if (!texto) return;
+    print('usuario@stand:' + cwd + '$ ' + texto);
+    const partes = texto.split(/\s+/);
+    const cmd = partes[0];
+    const arg1 = partes[1];
+
+    switch (cmd){
+      case 'help': cmdHelp(); break;
+      case 'ls': cmdLs(arg1 === '-la' || arg1 === '-al'); break;
+      case 'cd': cmdCd(arg1); break;
+      case 'pwd': print(cwd); break;
+      case 'cat': cmdCat(arg1); break;
+      case 'clear': pantalla.innerHTML = ''; break;
+      default: print('bash: ' + cmd + ': comando no encontrado', 'terminal-error');
+    }
+  }
+
+  entrada.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter'){
+      const valor = entrada.value;
+      if (valor.trim()){ historial.push(valor); indiceHist = historial.length; }
+      ejecutar(valor);
+      entrada.value = '';
+    } else if (e.key === 'ArrowUp'){
+      if (indiceHist > 0){ indiceHist--; entrada.value = historial[indiceHist]; }
+      e.preventDefault();
+    } else if (e.key === 'ArrowDown'){
+      if (indiceHist < historial.length - 1){ indiceHist++; entrada.value = historial[indiceHist]; }
+      else { indiceHist = historial.length; entrada.value = ''; }
+      e.preventDefault();
+    }
+  });
+
+  print('Bienvenido. Sistema de archivos montado en modo lectura.');
+  entrada.focus();
+})();
+</script>
 </body>
 </html>

@@ -97,3 +97,37 @@ button:focus-visible { outline: 1px solid var(--p-alto); outline-offset: 2px; }
   text-shadow: 0 0 .05em currentColor, 0 0 .6em rgba(182,255,143,.6);
   margin: .5rem 0;
 }
+
+/* --- terminal (Reto 3) --- */
+.terminal { margin-top: 1rem; }
+.terminal-pantalla {
+  height: 11rem;
+  overflow-y: auto;
+  padding: .8rem 1ch;
+  border: 1px solid var(--p-linea);
+  background: rgba(0, 0, 0, .25);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.terminal-linea { margin: 0 0 .2rem; }
+.terminal-error { color: var(--p-bajo); }
+.terminal-entrada {
+  display: flex;
+  align-items: center;
+  gap: .6ch;
+  margin-top: .6rem;
+}
+.terminal-prompt { white-space: nowrap; color: var(--p-alto); }
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  caret-color: currentColor;
+}
+@media (max-height: 430px) {
+  .terminal-pantalla { height: 7.5rem; padding: .5rem 1ch; }
+  .terminal-entrada { margin-top: .4rem; }
+}
