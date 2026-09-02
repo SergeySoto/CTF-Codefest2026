@@ -12,9 +12,12 @@
   una rejilla de celdas de carácter dibujada con reglas y glifos. Rechaza la
   cuadrícula de tarjetas redondeadas que envía cualquier plataforma de CTF.
   OWN-WORLD: fósforo P1 verde amarillento (#63e85c texto, #b6ff8f titulares,
-  #eaffe4 quemado) sobre cristal apagado #030a06. VT323 local. Cero radios,
-  cero sombras salvo el halo del fósforo. Marcos de 1px con el título sentado
-  sobre el trazo. Barrido, viñeta y lluvia de código como capas fijas.
+  #eaffe4 quemado) sobre cristal apagado #030a06. VT323 SOLO para cifras y
+  rótulos de pantalla; Inconsolata para el texto — corrección del usuario:
+  VT323 no se lee a tamaño de lectura. El halo va por capas, como el brillo
+  de un haz: los rótulos tenues no brillan. Cero radios. Marcos de 1px con
+  el título sentado sobre el trazo. Barrido, viñeta y lluvia como capas
+  fijas.
   STORY: alguien sin conocimientos técnicos se sienta, entiende en diez
   segundos que hay códigos escondidos, teclea uno y ve arder el fósforo.
   FIRST VIEWPORT: reloj enorme a la izquierda, tanteo a la derecha, la caja
@@ -28,7 +31,6 @@
     {% for c in lluvia %}<i style="left:{{ c.izq }}%;animation-duration:{{ c.dur }}s;animation-delay:{{ c.esp }}s">{{ c.texto }}</i>{% endfor %}
   </div>
   <div class="tubo" aria-hidden="true"></div>
-  <div class="destello" aria-hidden="true"></div>
 
   <div class="pantalla {% block clase_pantalla %}{% endblock %}">
     {% block contenido %}{% endblock %}

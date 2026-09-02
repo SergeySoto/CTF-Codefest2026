@@ -28,6 +28,8 @@
   }
 
   function decir(texto, clase = "") {
+    aviso.className = "aviso";
+    void aviso.offsetWidth;          // reinicia la animación y el aria-live
     aviso.textContent = texto;
     aviso.className = `aviso ${clase}`;
   }
@@ -61,17 +63,17 @@
     const g = document.createElement("div");
     g.className = "ganancia";
     g.textContent = `+${puntos}`;
-    const r = total.getBoundingClientRect();
-    g.style.left = `${r.left}px`;
+    const r = caja.getBoundingClientRect();
+    g.style.left = `${r.left + 8}px`;
     g.style.top = `${r.top}px`;
     document.body.appendChild(g);
     g.addEventListener("animationend", () => g.remove());
   }
 
-  function campana() {
-    document.body.classList.remove("fallo");
-    void document.body.offsetWidth;      // reinicia la animación
-    document.body.classList.add("fallo");
+  function sacudir() {
+    formulario.classList.remove("error");
+    void formulario.offsetWidth;         // reinicia la animación
+    formulario.classList.add("error");
   }
 
   formulario.addEventListener("submit", async (e) => {
@@ -111,7 +113,7 @@
         location.assign("/");
         break;
       default:
-        campana();
+        sacudir();
         decir("Esa no es. Sigue buscando.", "ko");
     }
     caja.focus();
@@ -122,6 +124,7 @@
     if (!fila) return;
     fila.classList.add("hecha");
     fila.querySelector(".marca-ok").textContent = "[✓]";
+    if (fila.dataset.aqui) caja.removeAttribute("list");
   }
 
   // -------------------------------------------------------------- visor

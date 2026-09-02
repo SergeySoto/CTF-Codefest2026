@@ -29,7 +29,7 @@
   --p-max:     #eaffe4;   /* saturación: el trazo quemado */
   --p-alto:    #b6ff8f;   /* titulares y cifras */
   --p-med:     #63e85c;   /* texto corriente */
-  --p-bajo:    #35953b;   /* etiquetas, secundario */
+  --p-bajo:    #52bd58;   /* etiquetas: aguanta la viñeta en las esquinas */
   --p-linea:   #1d5228;   /* reglas y marcos */
   --p-muerto:  #0e2a16;   /* celda apagada */
 
@@ -55,7 +55,6 @@ body {
   font-family: var(--texto);
   font-size: 1.1rem;
   line-height: 1.6;
-  text-shadow: var(--halo);
   letter-spacing: .01em;
   overflow-x: hidden;
 }
@@ -131,6 +130,13 @@ h1, h2, h3 {
   margin: 0;
 }
 
+p, li, .reglas span, .aviso.ok, .recibo b { text-shadow: var(--halo); }
+
+/* La capa de rótulos no brilla: es lo más pequeño y lo más tenue, y el halo
+   era justo lo que la emborronaba bajo el barrido. */
+.estado, .rotulo, .reto .dif, .pie, .marca small, .total small,
+.visor-fuera, .salida button, input::placeholder { text-shadow: none; }
+
 p { margin: 0 0 var(--paso); }
 
 a { color: var(--p-alto); }
@@ -147,8 +153,8 @@ a:hover { color: var(--p-max); text-shadow: var(--halo-max); }
   padding-bottom: calc(var(--paso) * .5);
   margin-bottom: calc(var(--paso) * 2);
   color: var(--p-bajo);
-  font-size: .9rem;
-  letter-spacing: .16em;
+  font-size: .95rem;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
 .estado b { color: var(--p-alto); font-weight: 400; }
@@ -195,7 +201,7 @@ input {
   color: var(--p-max);
   caret-color: var(--p-alto);
 }
-input::placeholder { color: var(--p-muerto); text-shadow: none; }
+input::placeholder { color: var(--p-bajo); opacity: 1; }
 input:focus { outline: none; border-color: var(--p-med); }
 input:focus-visible { outline: 1px solid var(--p-alto); outline-offset: 2px; }
 
@@ -208,6 +214,12 @@ button {
   transition: color .12s, border-color .12s, transform .12s;
 }
 button:hover { color: var(--vidrio); background: var(--p-alto); text-shadow: none; }
+button:focus-visible,
+a.reto:focus-visible,
+.visor-fuera:focus-visible {
+  outline: 1px solid var(--p-alto);
+  outline-offset: 2px;
+}
 button:active { transform: translateY(1px); }
 
 /* prompt: > ______ con cursor de bloque */
@@ -296,15 +308,16 @@ button:active { transform: translateY(1px); }
 
 .consola {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: calc(var(--paso) * 2);
-  align-items: center;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  gap: calc(var(--paso) * 6);
+  align-items: end;
   margin-bottom: calc(var(--paso) * 2);
 }
 
 .crono .cifras {
   font-family: var(--pantalla);
-  font-size: clamp(3.4rem, 11vw, 5.6rem);
+  font-size: clamp(3.4rem, 12vw, 9rem);
   line-height: 1;
   color: var(--p-max);
   text-shadow: var(--halo-max);
@@ -325,12 +338,12 @@ button:active { transform: translateY(1px); }
 .tanteo .rotulo {
   display: block;
   color: var(--p-bajo);
-  font-size: .85rem;
-  letter-spacing: .28em;
+  font-size: 1rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   margin-bottom: .1rem;
 }
-.crono .cifras { display: block; }
+.crono .cifras { display: block; width: max-content; }
 
 /* Urgencia sin cambiar de color: el fósforo se sobrecarga y parpadea.
    Un terminal monocromo no tiene un segundo tono. */
@@ -344,11 +357,11 @@ button:active { transform: translateY(1px); }
   padding: 0 .5ch;
 }
 
-.tanteo { text-align: right; }
+.tanteo { text-align: left; }
 .tanteo .puntos {
   display: block;
   font-family: var(--pantalla);
-  font-size: clamp(2.6rem, 7vw, 3.8rem);
+  font-size: clamp(2.6rem, 8vw, 5.5rem);
   line-height: 1;
   color: var(--p-alto);
   text-shadow: var(--halo-max);
@@ -358,16 +371,15 @@ button:active { transform: translateY(1px); }
 .caja-unica { margin-bottom: calc(var(--paso) * .5); }
 .caja-unica input { font-size: 1.4rem; letter-spacing: .02em; padding: .7rem 1ch; }
 
-/* fallo: campanada visual, el tubo entero destella e invierte */
-@keyframes campana { 0%, 100% { opacity: 0; } 12%, 40% { opacity: 1; } }
-.destello {
-  position: fixed; inset: 0; z-index: 95;
-  background: var(--p-alto);
-  mix-blend-mode: difference;
-  opacity: 0;
-  pointer-events: none;
+/* Fallar solo sacude la caja. Invertir la pantalla entera castigaba más
+   fuerte de lo que premiaba acertar, y el público es gente que se está
+   asomando a esto por primera vez. */
+@keyframes temblar {
+  10%, 90% { transform: translateX(-3px); }
+  30%, 70% { transform: translateX(5px); }
+  50%      { transform: translateX(-5px); }
 }
-body.fallo .destello { animation: campana .3s steps(2, end); }
+.caja-unica.error input { animation: temblar .32s steps(4, end); border-color: var(--p-alto); }
 
 .aviso {
   min-height: 1.6rem;
@@ -375,7 +387,14 @@ body.fallo .destello { animation: campana .3s steps(2, end); }
   color: var(--p-bajo);
   letter-spacing: .06em;
 }
-.aviso.ok { color: var(--p-max); text-shadow: var(--halo-max); }
+.aviso.ok {
+  color: var(--p-max);
+  text-shadow: var(--halo-max);
+  font-family: var(--pantalla);
+  font-size: 2rem;
+  line-height: 1.1;
+  animation: teclear .45s steps(28, end) both;
+}
 .aviso.ko { color: var(--p-alto); }
 
 /* --- tabla de retos: salida de un `ls`, no una rejilla de tarjetas --- */
@@ -398,7 +417,7 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 .reto .id { color: var(--p-bajo); }
 .reto .nombre { letter-spacing: .04em; }
 .reto .dif { color: var(--p-bajo); font-size: .95rem; letter-spacing: .06em; }
-.reto .marca-ok { color: var(--p-muerto); text-align: right; }
+.reto .marca-ok { color: var(--p-bajo); text-align: right; }
 
 .reto.hecha { color: var(--p-max); }
 .reto.hecha .nombre { text-shadow: var(--halo-max); }
@@ -507,17 +526,18 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 .visor-panel {
   display: flex;
   flex-direction: column;
-  min-height: 46vh;
+  min-height: 60vh;
   padding-bottom: calc(var(--paso) * 1);
 }
 
-.visor-vacio { color: var(--p-bajo); margin: auto 0; }
+.visor-vacio { color: var(--p-med); text-shadow: var(--halo); margin: auto 0; }
 
 #visor {
   flex: 1;
   width: 100%;
-  min-height: 40vh;
-  border: 1px solid var(--p-muerto);
+  height: calc(100vh - 26rem);
+  min-height: 55vh;
+  border: 0;                 /* el panel ya enmarca: no anidamos marcos */
   background: var(--vidrio);
 }
 
