@@ -93,7 +93,7 @@ body {
    brilla como el texto de la interfaz y es algo más grande. El reto es darse
    cuenta de que ahí pone algo, no forzar la vista. */
 .lluvia i.clave {
-  opacity: .9;
+  opacity: .7;
   color: var(--p-alto);
   /* Cabe entera en la franja despejada de encima de los paneles: si fuera
      más grande, el jugador nunca vería la bandera completa de una vez. */
@@ -248,6 +248,20 @@ button {
   transition: color .12s, border-color .12s, transform .12s;
 }
 button:hover { color: var(--vidrio); background: var(--p-alto); text-shadow: none; }
+.boton {
+  display: inline-block;
+  border: 1px solid var(--p-linea);
+  padding: .55rem 1.5ch;
+  color: var(--p-alto);
+  text-decoration: none;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  transition: color .12s, background-color .12s, transform .12s;
+}
+.boton:hover { color: var(--vidrio); background: var(--p-alto); text-shadow: none; }
+.boton:active { transform: translateY(1px); }
+
+.boton:focus-visible,
 button:focus-visible,
 a.reto:focus-visible,
 .visor-fuera:focus-visible {
@@ -663,7 +677,15 @@ body.pantalla-fin .pantalla { width: min(130ch, 100%); }
 .clasificacion .soy-yo .puesto { color: var(--p-alto); }
 .clasificacion .aparte { border-top: 1px dashed var(--p-linea); margin-top: var(--paso); }
 
-.relevo { margin: 0; color: var(--p-bajo); text-align: right; letter-spacing: .1em; }
+.relevo {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2ch;
+  color: var(--p-bajo);
+  letter-spacing: .1em;
+}
 .relevo b {
   color: var(--p-alto);
   font-family: var(--pantalla);

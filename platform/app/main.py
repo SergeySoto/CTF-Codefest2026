@@ -71,17 +71,13 @@ def lluvia(columnas: int = 26, con_bandera: bool = False):
     el otro lado de la sala y el reto dejaría de serlo.
     """
     rnd = random.Random()
-    portadora = rnd.randrange(columnas) if con_bandera else -1
+    # nunca en las columnas del borde: ahí la pantalla recorta los caracteres
+    # y la bandera se lee a medias
+    portadora = rnd.randrange(3, columnas - 3) if con_bandera else -1
     gotas = []
     for i in range(columnas):
         if i == portadora:
-            relleno = 2
-            arriba = rnd.randrange(relleno + 1)
-            texto = (
-                "".join(rnd.choice(ALFABETO) for _ in range(arriba))
-                + BANDERA_LLUVIA
-                + "".join(rnd.choice(ALFABETO) for _ in range(relleno - arriba))
-            )
+            texto = BANDERA_LLUVIA
             # más lenta y con su propio desvanecido: si cayera como las demás,
             # el degradado se comería medio código y no habría reto, solo suerte
             dur, clave = round(rnd.uniform(19.0, 24.0), 1), True
