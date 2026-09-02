@@ -38,8 +38,7 @@
       {% for r in retos %}
       <a class="reto {% if r.encontrada %}hecha{% endif %}"
          id="reto-{{ r.id }}"
-         href="{{ r.url or '#' }}"
-         {% if r.url %}data-visor="{{ r.url }}"{% else %}data-aqui="1"{% endif %}>
+         href="{{ r.url }}" data-visor="{{ r.url }}">
         <span class="id">{{ '%02d'|format(loop.index0) }}</span>
         <span class="nombre">{{ r.reto }}</span>
         <span class="dif">{{ r.dificultad }} ×{{ r.coef }}</span>

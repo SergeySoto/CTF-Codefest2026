@@ -75,7 +75,7 @@ def lluvia(columnas: int = 26, con_bandera: bool = False):
     gotas = []
     for i in range(columnas):
         if i == portadora:
-            relleno = 8
+            relleno = 2
             arriba = rnd.randrange(relleno + 1)
             texto = (
                 "".join(rnd.choice(ALFABETO) for _ in range(arriba))

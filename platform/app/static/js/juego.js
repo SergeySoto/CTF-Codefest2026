@@ -98,6 +98,7 @@
         total.textContent = d.total;
         ascender(d.puntos);
         marcarHecha(d.bandera_id);
+        retirarSugerencia(valor);
         decir(`CORRECTA · ${d.reto} · +${d.puntos} puntos`, "ok");
         break;
       case "repetida":
@@ -124,7 +125,17 @@
     if (!fila) return;
     fila.classList.add("hecha");
     fila.querySelector(".marca-ok").textContent = "[✓]";
-    if (fila.dataset.aqui) caja.removeAttribute("list");
+  }
+
+  // Una vez acertada la bandera que sugiere el navegador, la sugerencia
+  // estorba: taparía el aviso cada vez que el jugador escriba "flag{".
+  function retirarSugerencia(valor) {
+    const lista = caja.list;
+    if (!lista) return;
+    const v = valor.trim().toLowerCase();
+    if ([...lista.options].some((o) => o.value.trim().toLowerCase() === v)) {
+      caja.removeAttribute("list");
+    }
   }
 
   // -------------------------------------------------------------- visor
@@ -138,12 +149,6 @@
 
   document.querySelectorAll(".reto").forEach((fila) => {
     fila.addEventListener("click", (e) => {
-      if (fila.dataset.aqui) {
-        e.preventDefault();
-        decir("Ese no está en ninguna página: está en esta misma pantalla.", "");
-        caja.focus();
-        return;
-      }
       const url = fila.dataset.visor;
       if (!url) return;
       e.preventDefault();

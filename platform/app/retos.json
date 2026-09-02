@@ -4,7 +4,7 @@
     "reto": "Reto 0",
     "dificultad": "Fácil",
     "coef": 1,
-    "url": null
+    "url": "http://localhost:9000/reto-00/"
   },
   {
     "codigo": "flag{c0d1g0_fu3nt3}",

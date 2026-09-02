@@ -68,7 +68,7 @@ body {
 
 .tubo, .lluvia { position: fixed; inset: 0; pointer-events: none; }
 
-.lluvia { z-index: 0; overflow: hidden; opacity: .17; }
+.lluvia { z-index: 0; overflow: hidden; }
 
 .lluvia i {
   position: absolute;
@@ -82,17 +82,26 @@ body {
   white-space: nowrap;
   color: var(--p-med);
   text-shadow: none;
+  opacity: .15;
   animation: caer linear infinite;
   /* el rastro se apaga hacia arriba, como el fósforo al decaer */
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 55%, transparent);
           mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 55%, transparent);
 }
 
-/* La columna que lleva la bandera casi no se desvanece: hay que poder leerla
-   entera, si no el reto depende de pillarla en el instante bueno. */
+/* La columna que lleva la bandera: se lee de verdad. Casi no se desvanece,
+   brilla como el texto de la interfaz y es algo más grande. El reto es darse
+   cuenta de que ahí pone algo, no forzar la vista. */
 .lluvia i.clave {
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
-          mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+  opacity: .9;
+  color: var(--p-alto);
+  /* Cabe entera en la franja despejada de encima de los paneles: si fuera
+     más grande, el jugador nunca vería la bandera completa de una vez. */
+  font-size: 1.2rem;
+  letter-spacing: -.02em;
+  text-shadow: 0 0 .05em currentColor, 0 0 .45em rgba(182, 255, 143, .55);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
 }
 
 @keyframes caer {

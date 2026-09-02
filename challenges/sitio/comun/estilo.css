@@ -45,3 +45,11 @@ kbd {
   padding: 0 .5ch;
   color: var(--p-alto);
 }
+
+.grande {
+  font-family: "VT323", "Inconsolata", monospace;
+  font-size: 2rem;
+  line-height: 1.2;
+  color: var(--p-max);
+  text-shadow: 0 0 .05em currentColor, 0 0 .6em rgba(182, 255, 143, .6);
+}

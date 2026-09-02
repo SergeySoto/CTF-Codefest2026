@@ -38,7 +38,8 @@ El boca a boca es la mecánica principal del juego.
 | 3 | `Difícil` | **pendiente de escribir** | — |
 
 El Reto 0 existe para que **nadie se vaya con cero puntos**: se descubre
-pulsando en la caja o mirando el código de la página.
+pulsando en la caja o mirando el código de la página. Todos los retos, el 0
+incluido, tienen su página y se abren en el visor.
 
 El Reto 2 solo cae en la pantalla de juego, nunca en el marcador: en la
 segunda pantalla, a la vista de la cola, la bandera se leería desde el otro
