@@ -1,0 +1,312 @@
+"""Plataforma del CTF: reglas, juego, marcador."""
+import json
+import os
+import pathlib
+import random
+import secrets
+import time
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Form, Request, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+from . import db
+from .scoring import normalizar, puntos
+
+BASE = pathlib.Path(__file__).parent
+DURACION = int(os.environ.get("CTF_DURACION", 300))
+ADMIN_TOKEN = os.environ.get("CTF_ADMIN_TOKEN", "")
+COOKIE = "ctf_jugador"
+
+plantillas = Jinja2Templates(directory=BASE / "templates")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db.inicializar()
+    db.cargar_banderas(json.loads((BASE / "retos.json").read_text(encoding="utf-8")))
+    yield
+
+
+app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
+
+
+# ---------------------------------------------------------------- utilidades
+
+def jugador_actual(request: Request):
+    token = request.cookies.get(COOKIE)
+    if not token:
+        return None
+    with db.conexion() as con:
+        return con.execute(
+            "SELECT * FROM jugadores WHERE token = ?", (token,)
+        ).fetchone()
+
+
+def restantes(jugador) -> float:
+    return max(0.0, jugador["termina_en"] - time.time())
+
+
+def en_curso(jugador) -> bool:
+    """Sesión viva: queda tiempo y nadie la ha cerrado."""
+    return jugador is not None and jugador["cerrado_en"] is None and restantes(jugador) > 0
+
+
+# Alfabeto de la lluvia. Glifos que la VT323 tiene de verdad: si metiéramos
+# katakana caería en otra fuente y se rompería la rejilla de caracteres.
+ALFABETO = "0123456789ABCDEF{}[]<>/\\|=+*·:."
+
+
+def lluvia(columnas: int = 26):
+    """Columnas de código cayendo, generadas en el servidor: cero JS."""
+    rnd = random.Random()
+    return [
+        {
+            "texto": "".join(rnd.choice(ALFABETO) for _ in range(34)),
+            "izq": round(i * (100 / columnas) + rnd.uniform(-1.2, 1.2), 2),
+            "dur": round(rnd.uniform(7.5, 17.0), 1),
+            "esp": round(rnd.uniform(-14.0, 0.0), 1),
+        }
+        for i in range(columnas)
+    ]
+
+
+def retos_con_estado(jugador_id: int):
+    """Lista de retos; marca los que este jugador ya ha validado."""
+    with db.conexion() as con:
+        return con.execute(
+            """SELECT b.id, b.reto, b.dificultad, b.coef, b.url,
+                      (e.id IS NOT NULL) AS encontrada
+               FROM banderas b
+               LEFT JOIN envios e
+                    ON e.bandera_id = b.id AND e.jugador_id = ?
+               WHERE b.activa = 1
+               ORDER BY b.orden, b.id""",
+            (jugador_id,),
+        ).fetchall()
+
+
+# ------------------------------------------------------------------- páginas
+
+@app.get("/", response_class=HTMLResponse)
+async def inicio(request: Request):
+    # Si alguien ha salido sin querer, aquí puede volver a lo suyo.
+    jugador = jugador_actual(request)
+    activa = jugador if en_curso(jugador) else None
+    return plantillas.TemplateResponse(
+        request,
+        "inicio.html",
+        {
+            "duracion": DURACION // 60,
+            "activa": activa,
+            "quedan": int(restantes(activa)) if activa else 0,
+            "lluvia": lluvia(),
+        },
+    )
+
+
+@app.post("/empezar")
+async def empezar(apodo: str = Form(...)):
+    apodo = apodo.strip()[:24] or "Anónimo"
+    token = secrets.token_urlsafe(16)
+    ahora = time.time()
+    with db.conexion() as con:
+        con.execute(
+            """INSERT INTO jugadores (apodo, token, empezado_en, termina_en)
+               VALUES (?, ?, ?, ?)""",
+            (apodo, token, ahora, ahora + DURACION),
+        )
+    respuesta = RedirectResponse("/jugar", status_code=303)
+    respuesta.set_cookie(COOKIE, token, httponly=True, samesite="lax")
+    return respuesta
+
+
+@app.get("/jugar", response_class=HTMLResponse)
+async def jugar(request: Request):
+    jugador = jugador_actual(request)
+    if not jugador:
+        return RedirectResponse("/", status_code=303)
+    if not en_curso(jugador):
+        return RedirectResponse("/fin", status_code=303)
+    return plantillas.TemplateResponse(
+        request,
+        "jugar.html",
+        {
+            "jugador": jugador,
+            "retos": retos_con_estado(jugador["id"]),
+            "restantes": int(restantes(jugador)),
+            "duracion": DURACION,
+            "lluvia": lluvia(),
+        },
+    )
+
+
+@app.post("/enviar")
+async def enviar(request: Request, bandera: str = Form(...)):
+    jugador = jugador_actual(request)
+    if not jugador:
+        return JSONResponse({"estado": "sin_sesion"}, status_code=401)
+
+    queda = restantes(jugador)
+    if queda <= 0:
+        return JSONResponse({"estado": "tiempo_agotado"})
+
+    ahora = time.time()
+    with db.conexion() as con:
+        # anti-bruteforce: un envío por segundo
+        ultimo = con.execute(
+            "SELECT MAX(en) AS en FROM envios WHERE jugador_id = ?",
+            (jugador["id"],),
+        ).fetchone()["en"]
+        if ultimo and ahora - ultimo < 1.0:
+            return JSONResponse({"estado": "demasiado_rapido"})
+
+        fila = con.execute(
+            "SELECT * FROM banderas WHERE activa = 1"
+        ).fetchall()
+        objetivo = normalizar(bandera)
+        acierto = next((b for b in fila if normalizar(b["codigo"]) == objetivo), None)
+
+        if acierto is None:
+            con.execute(
+                "INSERT INTO envios (jugador_id, entrada, bandera_id, en, puntos) "
+                "VALUES (?, ?, NULL, ?, 0)",
+                (jugador["id"], bandera[:120], ahora),
+            )
+            return JSONResponse({"estado": "incorrecta"})
+
+        ya = con.execute(
+            "SELECT 1 FROM envios WHERE jugador_id = ? AND bandera_id = ?",
+            (jugador["id"], acierto["id"]),
+        ).fetchone()
+        if ya:
+            return JSONResponse({"estado": "repetida", "reto": acierto["reto"]})
+
+        ganados = puntos(acierto["coef"], queda)
+        con.execute(
+            "INSERT INTO envios (jugador_id, entrada, bandera_id, en, puntos) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (jugador["id"], bandera[:120], acierto["id"], ahora, ganados),
+        )
+        con.execute(
+            "UPDATE jugadores SET puntos = puntos + ? WHERE id = ?",
+            (ganados, jugador["id"]),
+        )
+        total = con.execute(
+            "SELECT puntos FROM jugadores WHERE id = ?", (jugador["id"],)
+        ).fetchone()["puntos"]
+
+    return JSONResponse(
+        {
+            "estado": "correcta",
+            "bandera_id": acierto["id"],
+            "reto": acierto["reto"],
+            "puntos": ganados,
+            "total": total,
+        }
+    )
+
+
+@app.post("/salir")
+async def salir(request: Request):
+    """Salida voluntaria. Cierra la sesión: no se puede volver a ella."""
+    jugador = jugador_actual(request)
+    if jugador:
+        with db.conexion() as con:
+            con.execute(
+                "UPDATE jugadores SET cerrado_en = ? WHERE id = ? AND cerrado_en IS NULL",
+                (time.time(), jugador["id"]),
+            )
+    return RedirectResponse("/fin", status_code=303)
+
+
+@app.get("/api/estado")
+async def estado(request: Request):
+    """El JS del cronómetro se sincroniza con el servidor, no con el reloj del PC."""
+    jugador = jugador_actual(request)
+    if not jugador:
+        return JSONResponse({"estado": "sin_sesion"}, status_code=401)
+    return JSONResponse(
+        {
+            "restantes": int(restantes(jugador)),
+            "duracion": DURACION,
+            "puntos": jugador["puntos"],
+        }
+    )
+
+
+@app.get("/fin", response_class=HTMLResponse)
+async def fin(request: Request):
+    jugador = jugador_actual(request)
+    if not jugador:
+        return RedirectResponse("/", status_code=303)
+    # Llegar aquí con tiempo por delante y sin haber pulsado SALIR es un
+    # accidente: se devuelve al jugador a su partida en vez de terminarla.
+    if en_curso(jugador):
+        return RedirectResponse("/jugar", status_code=303)
+    with db.conexion() as con:
+        con.execute(
+            "UPDATE jugadores SET cerrado_en = ? WHERE id = ? AND cerrado_en IS NULL",
+            (time.time(), jugador["id"]),
+        )
+        posicion = con.execute(
+            "SELECT COUNT(*) + 1 AS p FROM jugadores WHERE puntos > ?",
+            (jugador["puntos"],),
+        ).fetchone()["p"]
+        encontradas = con.execute(
+            """SELECT b.reto, e.puntos FROM envios e
+               JOIN banderas b ON b.id = e.bandera_id
+               WHERE e.jugador_id = ? ORDER BY e.en""",
+            (jugador["id"],),
+        ).fetchall()
+    respuesta = plantillas.TemplateResponse(
+        request,
+        "fin.html",
+        {
+            "jugador": jugador,
+            "posicion": posicion,
+            "encontradas": encontradas,
+            "lluvia": lluvia(),
+        },
+    )
+    respuesta.delete_cookie(COOKIE)
+    return respuesta
+
+
+@app.get("/marcador", response_class=HTMLResponse)
+async def marcador(request: Request):
+    with db.conexion() as con:
+        top = con.execute(
+            "SELECT apodo, puntos FROM jugadores ORDER BY puntos DESC, empezado_en LIMIT 15"
+        ).fetchall()
+        total = con.execute("SELECT COUNT(*) AS n FROM jugadores").fetchone()["n"]
+    return plantillas.TemplateResponse(
+        request, "marcador.html", {"top": top, "total": total, "lluvia": lluvia()}
+    )
+
+
+@app.get("/api/marcador")
+async def api_marcador():
+    with db.conexion() as con:
+        top = con.execute(
+            "SELECT apodo, puntos FROM jugadores ORDER BY puntos DESC, empezado_en LIMIT 15"
+        ).fetchall()
+    return JSONResponse([dict(f) for f in top])
+
+
+# --------------------------------------------------------------------- admin
+
+@app.post("/admin/reset")
+async def admin_reset(request: Request):
+    """Cierra la sesión en curso. No borra nada del marcador."""
+    if not ADMIN_TOKEN or request.headers.get("X-Token") != ADMIN_TOKEN:
+        return JSONResponse({"error": "no autorizado"}, status_code=403)
+    with db.conexion() as con:
+        con.execute(
+            "UPDATE jugadores SET cerrado_en = ? WHERE cerrado_en IS NULL",
+            (time.time(),),
+        )
+    return JSONResponse({"estado": "ok"})

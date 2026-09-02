@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titulo %}Jugando · Codefest CTF{% endblock %}
+{% block clase %}pantalla-juego{% endblock %}
+{% block contenido %}
+
+<div class="estado">
+  <span>sesión <b>{{ jugador.apodo }}</b></span>
+  <span class="rellena"></span>
+  <span>codefest ctf · terminal 01</span>
+</div>
+
+<div class="consola">
+  <div class="crono" id="crono" data-restantes="{{ restantes }}" data-duracion="{{ duracion }}">
+    <span class="rotulo">tiempo</span>
+    <span class="cifras" id="reloj">--:--</span>
+    <span class="barra" id="barra"></span>
+  </div>
+  <div class="tanteo">
+    <span class="rotulo">puntos</span>
+    <span class="puntos" id="total">{{ jugador.puntos }}</span>
+  </div>
+</div>
+
+<form class="caja-unica prompt" id="formulario" autocomplete="off">
+  <input name="bandera" id="bandera" list="sugerencias"
+         placeholder="escribe aquí la bandera" autofocus>
+  <button type="submit">Enviar</button>
+</form>
+<datalist id="sugerencias">
+  <option value="flag{fl4g_f4c1l}">
+</datalist>
+<p class="aviso" id="aviso" role="status" aria-live="polite">Empieza por la caja de arriba. Mírala bien.</p>
+
+<div class="taller">
+  <section class="panel retos-panel">
+    <h2 class="titulo">[ retos ]</h2>
+    <div class="retos">
+      {% for r in retos %}
+      <a class="reto {% if r.encontrada %}hecha{% endif %}"
+         id="reto-{{ r.id }}"
+         href="{{ r.url or '#' }}"
+         {% if r.url %}data-visor="{{ r.url }}"{% else %}data-aqui="1"{% endif %}>
+        <span class="id">{{ '%02d'|format(loop.index0) }}</span>
+        <span class="nombre">{{ r.reto }}</span>
+        <span class="dif">{{ r.dificultad }} ×{{ r.coef }}</span>
+        <span class="marca-ok">{% if r.encontrada %}[✓]{% else %}[ ]{% endif %}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel visor-panel">
+    <h2 class="titulo" id="visor-titulo">[ visor ]</h2>
+    <p class="visor-vacio" id="visor-vacio">
+      Elige un reto de la izquierda y se abrirá aquí mismo,<br>
+      sin perder de vista el reloj.
+    </p>
+    <iframe id="visor" title="Reto" hidden
+            sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    <a class="visor-fuera" id="visor-fuera" href="#" target="_blank" rel="noopener" hidden>
+      abrir en otra pestaña ↗
+    </a>
+  </section>
+</div>
+
+<div class="salida">
+  <button type="button" id="pedir-salir">Salir de la sesión</button>
+  <form method="post" action="/salir" class="confirmar" id="confirmar" hidden>
+    <span>¿Terminar ya? Se cierra la partida.</span>
+    <button type="submit">Sí, terminar</button>
+    <button type="button" id="seguir">Seguir jugando</button>
+  </form>
+</div>
+
+{% endblock %}
+{% block scripts %}<script src="/static/js/juego.js"></script>{% endblock %}

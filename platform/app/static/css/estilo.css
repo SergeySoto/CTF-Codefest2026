@@ -1,0 +1,555 @@
+/* =========================================================================
+   CODEFEST CTF — mundo visual: terminal de fósforo verde (CRT, años 80)
+   Solo se animan transform, opacity y clip-path. Sin CDN. Fuente local.
+   ========================================================================= */
+
+/* VT323 solo para las cifras y los rótulos grandes: es una tipografía de
+   pantalla, no de lectura. El texto corriente va en Inconsolata, que
+   mantiene la rejilla monoespaciada y se lee sin esfuerzo. */
+@font-face {
+  font-family: "VT323";
+  src: url("/static/fonts/vt323.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Inconsolata";
+  src: url("/static/fonts/inconsolata-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Inconsolata";
+  src: url("/static/fonts/inconsolata-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
+:root {
+  /* El fósforo P1 es verde amarillento, no el #00ff00 de las películas. */
+  --vidrio:    #030a06;   /* el cristal apagado */
+  --vidrio-2:  #061309;   /* fondo de panel */
+  --p-max:     #eaffe4;   /* saturación: el trazo quemado */
+  --p-alto:    #b6ff8f;   /* titulares y cifras */
+  --p-med:     #63e85c;   /* texto corriente */
+  --p-bajo:    #35953b;   /* etiquetas, secundario */
+  --p-linea:   #1d5228;   /* reglas y marcos */
+  --p-muerto:  #0e2a16;   /* celda apagada */
+
+  --halo:      0 0 .05em currentColor, 0 0 .5em rgba(99, 232, 92, .35);
+  --halo-max:  0 0 .05em currentColor, 0 0 .7em rgba(182, 255, 143, .75);
+
+  --texto: "Inconsolata", "DejaVu Sans Mono", "Liberation Mono", monospace;
+  --pantalla: "VT323", "Inconsolata", monospace;
+
+  --celda: 1ch;
+  --paso: .75rem;         /* ritmo vertical único */
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 18px; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--vidrio);
+  color: var(--p-med);
+  font-family: var(--texto);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-shadow: var(--halo);
+  letter-spacing: .01em;
+  overflow-x: hidden;
+}
+
+/* ---------------------------------------------------------- el tubo CRT
+   Tres capas fijas por encima del contenido: lluvia, líneas de barrido y
+   viñeta. Ninguna intercepta el ratón.                                    */
+
+.tubo, .lluvia { position: fixed; inset: 0; pointer-events: none; }
+
+.lluvia { z-index: 0; overflow: hidden; opacity: .1; }
+
+.lluvia i {
+  position: absolute;
+  top: 0;
+  font-style: normal;
+  font-family: var(--pantalla);
+  font-size: 1.15rem;
+  line-height: 1.05;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  white-space: nowrap;
+  color: var(--p-med);
+  text-shadow: none;
+  animation: caer linear infinite;
+  /* el rastro se apaga hacia arriba, como el fósforo al decaer */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 55%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 55%, transparent);
+}
+
+@keyframes caer {
+  from { transform: translate3d(0, -100%, 0); }
+  to   { transform: translate3d(0, 100vh, 0); }
+}
+
+.tubo { z-index: 90; }
+
+.tubo::before {            /* líneas de barrido */
+  content: "";
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, .14) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.tubo::after {             /* viñeta: el cristal es convexo */
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 120% 120% at 50% 50%,
+      transparent 55%, rgba(0, 0, 0, .55) 100%);
+  box-shadow: inset 0 0 9rem rgba(0, 0, 0, .9);
+}
+
+/* --------------------------------------------------------------- lienzo */
+
+.pantalla {
+  position: relative;
+  z-index: 1;
+  width: min(92ch, 100%);
+  margin: 0 auto;
+  padding: calc(var(--paso) * 3) calc(var(--paso) * 2) calc(var(--paso) * 6);
+}
+
+/* -------------------------------------------------------- tipos y ritmo */
+
+h1, h2, h3 {
+  font-weight: 400;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+p { margin: 0 0 var(--paso); }
+
+a { color: var(--p-alto); }
+a:hover { color: var(--p-max); text-shadow: var(--halo-max); }
+
+/* cabecera de sesión, como la línea de estado de un terminal */
+.estado {
+  font-family: var(--texto);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2ch;
+  align-items: baseline;
+  border-bottom: 1px solid var(--p-linea);
+  padding-bottom: calc(var(--paso) * .5);
+  margin-bottom: calc(var(--paso) * 2);
+  color: var(--p-bajo);
+  font-size: .9rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.estado b { color: var(--p-alto); font-weight: 400; }
+.estado .rellena { flex: 1; }
+
+/* ------------------------------------------------------- panel con marco
+   El título se sienta sobre el trazo, como ┌─[ TÍTULO ]───┐             */
+
+.panel {
+  position: relative;
+  border: 1px solid var(--p-linea);
+  background: var(--vidrio-2);
+  padding: calc(var(--paso) * 2) calc(var(--paso) * 2) calc(var(--paso) * 1.5);
+  margin-bottom: calc(var(--paso) * 2);
+}
+
+.panel > .titulo {
+  position: absolute;
+  top: 0;
+  left: 2ch;
+  transform: translateY(-50%);
+  background: var(--vidrio);
+  padding: 0 1ch;
+  color: var(--p-alto);
+  font-size: .9rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------- entradas */
+
+input, button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--p-linea);
+  border-radius: 0;
+  padding: .55rem 1ch;
+  text-shadow: inherit;
+}
+
+input {
+  width: 100%;
+  color: var(--p-max);
+  caret-color: var(--p-alto);
+}
+input::placeholder { color: var(--p-muerto); text-shadow: none; }
+input:focus { outline: none; border-color: var(--p-med); }
+input:focus-visible { outline: 1px solid var(--p-alto); outline-offset: 2px; }
+
+button {
+  cursor: pointer;
+  color: var(--p-alto);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color .12s, border-color .12s, transform .12s;
+}
+button:hover { color: var(--vidrio); background: var(--p-alto); text-shadow: none; }
+button:active { transform: translateY(1px); }
+
+/* prompt: > ______ con cursor de bloque */
+.prompt { display: flex; align-items: stretch; gap: 1ch; }
+.prompt::before {
+  content: ">";
+  align-self: center;
+  color: var(--p-alto);
+  font-family: var(--pantalla);
+  font-size: 1.8rem;
+}
+
+@keyframes parpadeo { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.cursor { color: var(--p-alto); animation: parpadeo 1.06s steps(1) infinite; }
+
+/* -------------------------------------------------- arranque del sistema
+   Las líneas se imprimen una tras otra. Se acaba en 700 ms: hay cola.    */
+
+@keyframes imprimir {
+  from { opacity: 0; transform: translateY(.35em); }
+  to   { opacity: 1; transform: none; }
+}
+.linea {
+  animation: imprimir .18s steps(3, end) both;
+  animation-delay: var(--t, 0ms);
+}
+
+/* tecleo carácter a carácter, recortando en vez de mover la caja */
+@keyframes teclear { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.teclea {
+  display: inline-block;
+  animation: teclear .5s steps(var(--n, 20), end) both;
+  animation-delay: var(--t, 0ms);
+}
+
+/* ================================================================ INICIO */
+
+.marca {
+  font-family: var(--pantalla);
+  font-size: clamp(3rem, 10vw, 5.6rem);
+  line-height: .95;
+  color: var(--p-max);
+  text-shadow: var(--halo-max);
+  letter-spacing: .06em;
+}
+.marca { margin-bottom: calc(var(--paso) * 2.5); }
+.marca small {
+  display: block;
+  font-family: var(--texto);
+  font-size: .95rem;
+  letter-spacing: .35em;
+  color: var(--p-bajo);
+  text-shadow: var(--halo);
+  margin-top: calc(var(--paso) * .5);
+}
+
+.reglas { list-style: none; margin: 0; padding: 0; counter-reset: r; }
+.reglas li {
+  counter-increment: r;
+  display: grid;
+  grid-template-columns: 4ch 1fr;
+  gap: 1ch;
+  margin-bottom: calc(var(--paso) * 1.1);
+  font-size: 1.15rem;
+}
+.reglas li::before {
+  content: "[" counter(r) "]";
+  color: var(--p-bajo);
+}
+.reglas b { color: var(--p-alto); font-weight: 700; }
+.reglas code {
+  color: var(--p-max);
+  background: rgba(99, 232, 92, .1);
+  padding: 0 .5ch;
+}
+
+.arranque { display: flex; gap: 1ch; margin-top: calc(var(--paso) * 2); }
+.arranque input { flex: 1; }
+
+/* aviso de sesión recuperable */
+.recuperar { border-color: var(--p-alto); }
+.recuperar .titulo { color: var(--p-max); }
+.recuperar .queda { color: var(--p-max); font-family: var(--pantalla); font-size: 2.6rem; text-shadow: var(--halo-max); }
+
+/* ================================================================= JUEGO */
+
+.consola {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: calc(var(--paso) * 2);
+  align-items: center;
+  margin-bottom: calc(var(--paso) * 2);
+}
+
+.crono .cifras {
+  font-family: var(--pantalla);
+  font-size: clamp(3.4rem, 11vw, 5.6rem);
+  line-height: 1;
+  color: var(--p-max);
+  text-shadow: var(--halo-max);
+  font-variant-numeric: tabular-nums;
+}
+.crono .barra .vacio { color: var(--p-muerto); text-shadow: none; }
+.crono .barra {
+  display: block;
+  color: var(--p-med);
+  font-family: var(--pantalla);
+  font-size: 1.15rem;
+  line-height: 1;
+  letter-spacing: -.08em;
+  white-space: nowrap;
+  margin-top: .35rem;
+}
+.crono .rotulo,
+.tanteo .rotulo {
+  display: block;
+  color: var(--p-bajo);
+  font-size: .85rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  margin-bottom: .1rem;
+}
+.crono .cifras { display: block; }
+
+/* Urgencia sin cambiar de color: el fósforo se sobrecarga y parpadea.
+   Un terminal monocromo no tiene un segundo tono. */
+@keyframes sobrecarga { 50% { opacity: .45; } }
+.crono.critico .cifras,
+.crono.critico .barra { animation: sobrecarga .9s steps(2, end) infinite; }
+.crono.critico .cifras {
+  background: var(--p-max);
+  color: var(--vidrio);
+  text-shadow: none;
+  padding: 0 .5ch;
+}
+
+.tanteo { text-align: right; }
+.tanteo .puntos {
+  display: block;
+  font-family: var(--pantalla);
+  font-size: clamp(2.6rem, 7vw, 3.8rem);
+  line-height: 1;
+  color: var(--p-alto);
+  text-shadow: var(--halo-max);
+  font-variant-numeric: tabular-nums;
+}
+
+.caja-unica { margin-bottom: calc(var(--paso) * .5); }
+.caja-unica input { font-size: 1.4rem; letter-spacing: .02em; padding: .7rem 1ch; }
+
+/* fallo: campanada visual, el tubo entero destella e invierte */
+@keyframes campana { 0%, 100% { opacity: 0; } 12%, 40% { opacity: 1; } }
+.destello {
+  position: fixed; inset: 0; z-index: 95;
+  background: var(--p-alto);
+  mix-blend-mode: difference;
+  opacity: 0;
+  pointer-events: none;
+}
+body.fallo .destello { animation: campana .3s steps(2, end); }
+
+.aviso {
+  min-height: 1.6rem;
+  margin: 0 0 var(--paso);
+  color: var(--p-bajo);
+  letter-spacing: .06em;
+}
+.aviso.ok { color: var(--p-max); text-shadow: var(--halo-max); }
+.aviso.ko { color: var(--p-alto); }
+
+/* --- tabla de retos: salida de un `ls`, no una rejilla de tarjetas --- */
+
+.retos { border-top: 1px solid var(--p-linea); }
+
+.reto {
+  display: grid;
+  grid-template-columns: 5ch 1fr 12ch 5ch;
+  gap: 1ch;
+  align-items: baseline;
+  padding: calc(var(--paso) * .7) 1ch;
+  border-bottom: 1px solid var(--p-muerto);
+  color: var(--p-med);
+  text-decoration: none;
+  transition: background-color .12s, color .12s;
+}
+a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
+
+.reto .id { color: var(--p-bajo); }
+.reto .nombre { letter-spacing: .04em; }
+.reto .dif { color: var(--p-bajo); font-size: .95rem; letter-spacing: .06em; }
+.reto .marca-ok { color: var(--p-muerto); text-align: right; }
+
+.reto.hecha { color: var(--p-max); }
+.reto.hecha .nombre { text-shadow: var(--halo-max); }
+.reto.hecha .marca-ok { color: var(--p-max); text-shadow: var(--halo-max); }
+
+/* los puntos ganados suben hacia el marcador */
+@keyframes ascender {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-2.5em); }
+}
+.ganancia {
+  position: fixed; z-index: 80;
+  color: var(--p-max);
+  text-shadow: var(--halo-max);
+  font-family: var(--pantalla);
+  font-size: 2.2rem;
+  pointer-events: none;
+  animation: ascender 1.15s steps(9, end) forwards;
+}
+
+/* salir: confirmación en línea, nunca un diálogo del navegador */
+.salida { margin-top: calc(var(--paso) * 2); text-align: right; }
+.salida button { color: var(--p-bajo); border-color: var(--p-muerto); font-size: 1.05rem; }
+.salida button:hover { color: var(--vidrio); background: var(--p-bajo); }
+.confirmar[hidden] { display: none; }
+.confirmar { display: inline-flex; gap: 1ch; align-items: center; }
+.confirmar span { color: var(--p-alto); }
+
+/* =================================================================== FIN */
+
+.total {
+  font-family: var(--pantalla);
+  font-size: clamp(5rem, 20vw, 10rem);
+  line-height: .9;
+  color: var(--p-max);
+  text-shadow: var(--halo-max);
+  font-variant-numeric: tabular-nums;
+}
+.total small { display: block; font-size: 1.1rem; letter-spacing: .3em; color: var(--p-bajo); text-shadow: var(--halo); }
+
+.recibo { list-style: none; margin: 0; padding: 0; }
+.recibo li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1ch;
+  border-bottom: 1px dotted var(--p-muerto);
+  padding: calc(var(--paso) * .4) 0;
+}
+.recibo b { color: var(--p-max); font-weight: 400; }
+.recibo.vacio { color: var(--p-bajo); }
+
+.consejo {
+  margin-top: calc(var(--paso) * 2.5);
+  color: var(--p-alto);
+  letter-spacing: .08em;
+  text-shadow: var(--halo-max);
+}
+
+/* ============================================================== MARCADOR */
+
+.pantalla-marcador { width: min(80ch, 100%); }
+.pantalla-marcador .marca { text-align: center; }
+
+.clasificacion { list-style: none; margin: calc(var(--paso) * 2) 0; padding: 0; }
+.clasificacion li {
+  display: grid;
+  grid-template-columns: 5ch 1fr auto;
+  gap: 2ch;
+  align-items: baseline;
+  padding: calc(var(--paso) * .6) 1ch;
+  border-bottom: 1px solid var(--p-muerto);
+  font-size: 1.6rem;
+}
+.clasificacion .puesto, .clasificacion .pts { font-family: var(--pantalla); font-size: 2rem; }
+.clasificacion li:first-child { color: var(--p-max); text-shadow: var(--halo-max); }
+.clasificacion .puesto { color: var(--p-bajo); }
+.clasificacion .pts { font-variant-numeric: tabular-nums; }
+.pie { text-align: center; color: var(--p-bajo); letter-spacing: .2em; }
+
+/* ============================================================ movimiento */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .lluvia { display: none; }
+}
+
+/* ------------------------------------------------------ taller: índice + visor
+   El reto se abre dentro de la pantalla. El reloj y la caja nunca se pierden
+   de vista, que es lo único que importa cuando quedan cinco minutos. */
+
+.taller {
+  display: grid;
+  grid-template-columns: minmax(30ch, 34ch) 1fr;
+  gap: calc(var(--paso) * 2);
+  align-items: start;
+}
+
+.retos-panel { padding-left: 0; padding-right: 0; }
+.retos-panel .titulo { left: 2ch; }
+.retos-panel .retos { border-top: none; }
+
+.visor-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 46vh;
+  padding-bottom: calc(var(--paso) * 1);
+}
+
+.visor-vacio { color: var(--p-bajo); margin: auto 0; }
+
+#visor {
+  flex: 1;
+  width: 100%;
+  min-height: 40vh;
+  border: 1px solid var(--p-muerto);
+  background: var(--vidrio);
+}
+
+.visor-fuera {
+  align-self: flex-end;
+  margin-top: calc(var(--paso) * .6);
+  font-size: 1.05rem;
+  color: var(--p-bajo);
+}
+.visor-fuera[hidden] { display: none; }
+
+.reto.mirando { background: rgba(99, 232, 92, .12); color: var(--p-max); }
+.reto.mirando .id::before { content: "›"; margin-right: .5ch; color: var(--p-max); }
+
+@media (max-width: 62rem) {
+  .taller { grid-template-columns: 1fr; }
+  .consola { grid-template-columns: 1fr; gap: var(--paso); }
+  .tanteo { text-align: left; }
+}
+
+/* la partida necesita ancho: índice y visor conviven en pantalla */
+body.pantalla-juego .pantalla { width: min(150ch, 100%); padding-top: calc(var(--paso) * 2); }
+
+/* el rótulo bajo la cifra necesita aire: si no, se mete en el panel siguiente */
+.total { margin-bottom: calc(var(--paso) * 2.5); }
+.total small { margin-top: .4rem; }
+
+/* pantallas estrechas: la dificultad baja a su propia línea en vez de
+   empujar la casilla de estado fuera del panel */
+@media (max-width: 40rem) {
+  .pantalla { padding-left: var(--paso); padding-right: var(--paso); }
+  .reto { grid-template-columns: 4ch 1fr 4ch; row-gap: 0; }
+  .reto .dif { grid-column: 2 / 3; grid-row: 2; }
+  .reto .marca-ok { grid-column: 3; grid-row: 1; }
+}

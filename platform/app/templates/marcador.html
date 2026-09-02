@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Marcador · Codefest CTF{% endblock %}
+{% block clase_pantalla %}pantalla-marcador{% endblock %}
+{% block contenido %}
+
+<h1 class="marca">MARCADOR<small>codefest ctf</small></h1>
+
+<ol class="clasificacion" id="clasificacion">
+  {% for j in top %}
+  <li>
+    <span class="puesto">{{ '%02d'|format(loop.index) }}</span>
+    <span class="nombre">{{ j.apodo }}</span>
+    <span class="pts">{{ j.puntos }}</span>
+  </li>
+  {% endfor %}
+</ol>
+
+<p class="pie">{{ total }} participantes<span class="cursor">█</span></p>
+
+<script>
+const fila = (j, i) => {
+  const li = document.createElement("li");
+  li.innerHTML = '<span class="puesto"></span><span class="nombre"></span><span class="pts"></span>';
+  li.children[0].textContent = String(i + 1).padStart(2, "0");
+  li.children[1].textContent = j.apodo;   // textContent: nunca inyectamos HTML de un apodo
+  li.children[2].textContent = j.puntos;
+  return li;
+};
+setInterval(async () => {
+  try {
+    const top = await (await fetch("/api/marcador")).json();
+    const ol = document.getElementById("clasificacion");
+    ol.replaceChildren(...top.map(fila));
+  } catch {}
+}, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+# Desarrollo. Docker Compose lo aplica solo, sin flags.
+# El día del evento NO se usa: start-day.sh arranca con `-f docker-compose.yml`.
+services:
+  plataforma:
+    build:
+      target: dev
+    volumes:
+      - ./platform/app:/srv/app          # el código, en vivo
+      - ./data:/data
+    command:
+      - uvicorn
+      - app.main:app
+      - --host=0.0.0.0
+      - --port=8000
+      - --reload
+      - --reload-dir=/srv/app
+      - --reload-include=*.json          # retos.json se lee al arrancar
+      - --reload-include=*.html
+      - --reload-include=*.css
+      - --reload-include=*.js
+
+  retos:
+    volumes:
+      - ./challenges/sitio:/usr/share/nginx/html:ro
+      - ./challenges/nginx.conf:/etc/nginx/conf.d/default.conf:ro

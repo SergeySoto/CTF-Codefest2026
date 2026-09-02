@@ -1,0 +1,34 @@
+/* Hoja común de los retos. Mismo mundo de fósforo que la plataforma, para
+   que el visor no parezca una ventana a otra aplicación. */
+@font-face { font-family:"Inconsolata"; src:url("/comun/inconsolata-400.woff2") format("woff2"); font-weight:400; font-display:swap; }
+@font-face { font-family:"Inconsolata"; src:url("/comun/inconsolata-700.woff2") format("woff2"); font-weight:700; font-display:swap; }
+@font-face { font-family:"VT323"; src:url("/comun/vt323.woff2") format("woff2"); font-weight:400; font-display:swap; }
+
+:root {
+  --vidrio:#030a06; --p-max:#eaffe4; --p-alto:#b6ff8f;
+  --p-med:#63e85c; --p-bajo:#35953b; --p-linea:#1d5228; --p-muerto:#0e2a16;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; padding:2.5rem 2rem; min-height:100vh;
+  background:var(--vidrio); color:var(--p-med);
+  font-family:"Inconsolata","DejaVu Sans Mono",monospace;
+  font-size:1.05rem; line-height:1.6;
+  text-shadow:0 0 .05em currentColor, 0 0 .5em rgba(99,232,92,.3);
+}
+main { max-width:70ch; margin:0 auto; }
+h1 {
+  font-family:"VT323","Inconsolata",monospace; font-weight:400;
+  font-size:2.6rem; line-height:1; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--p-max); text-shadow:0 0 .05em currentColor,0 0 .7em rgba(182,255,143,.7);
+  margin:0 0 1.5rem;
+}
+a { color:var(--p-alto); }
+a:hover { color:var(--p-max); }
+ul { list-style:none; padding:0; display:grid; gap:.6rem; }
+ul a {
+  display:block; padding:.8rem 1ch; border:1px solid var(--p-linea);
+  text-decoration:none; color:var(--p-med);
+  transition:background-color .12s, color .12s;
+}
+ul a:hover { background:rgba(99,232,92,.1); color:var(--p-max); }

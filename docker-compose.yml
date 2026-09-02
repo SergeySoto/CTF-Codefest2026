@@ -1,0 +1,24 @@
+services:
+  plataforma:
+    build:
+      context: ./platform
+      target: prod
+    container_name: ctf-plataforma
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    environment:
+      CTF_DB: /data/ctf.db
+      CTF_ADMIN_TOKEN: ${CTF_ADMIN_TOKEN:?falta CTF_ADMIN_TOKEN}
+      CTF_DURACION: ${CTF_DURACION:-300}
+    restart: unless-stopped
+
+  # Todos los retos son estáticos: un solo nginx los sirve en subcarpetas.
+  # Si algún día un reto necesita backend propio, se le añade su contenedor.
+  retos:
+    build: ./challenges
+    container_name: ctf-retos
+    ports:
+      - "9000:80"
+    restart: unless-stopped

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Fin · Codefest CTF{% endblock %}
+{% block contenido %}
+
+<div class="estado">
+  <span>sesión terminada</span>
+  <span class="rellena"></span>
+  <span>{{ jugador.apodo }}</span>
+</div>
+
+<p class="total linea" style="--t:80ms">
+  {{ jugador.puntos }}
+  <small>puntos · puesto {{ posicion }}</small>
+</p>
+
+<section class="panel linea" style="--t:220ms">
+  <h2 class="titulo">[ registro ]</h2>
+  {% if encontradas %}
+  <ul class="recibo">
+    {% for e in encontradas %}
+    <li><span>{{ e.reto }}</span> <b>+{{ e.puntos }}</b></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="recibo vacio">Ninguna bandera esta vez. Pregunta a quien juegue después: siguen valiendo.</p>
+  {% endif %}
+</section>
+
+<p class="consejo linea" style="--t:340ms">
+  &gt; Cuéntale al siguiente lo que has encontrado.<span class="cursor">█</span>
+</p>
+
+<script>setTimeout(() => location.assign("/"), 20000);</script>
+{% endblock %}
