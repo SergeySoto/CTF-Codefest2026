@@ -58,7 +58,7 @@ def en_curso(jugador) -> bool:
 # katakana caería en otra fuente y se rompería la rejilla de caracteres.
 ALFABETO = "0123456789ABCDEF{}[]<>/\\|=+*·:."
 
-# Reto 2: una de las columnas de la lluvia lleva la bandera. Va en minúsculas,
+# Reto 1: una de las columnas de la lluvia lleva la bandera. Va en minúsculas,
 # así que destaca entre el ruido en mayúsculas para quien se fije.
 BANDERA_LLUVIA = "flag{lluvia_de_d4t0s}"
 

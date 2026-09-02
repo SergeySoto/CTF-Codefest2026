@@ -33,18 +33,28 @@ El boca a boca es la mecánica principal del juego.
 | # | Dificultad | Dónde está la bandera | Habilidad |
 |---|---|---|---|
 | 0 | `Fácil` | en la sugerencia de la propia caja de texto | fijarse |
-| 1 | `Fácil` | en un comentario del código fuente de `/reto-01/` | ver código fuente |
-| 2 | `Media` | cayendo en la lluvia del fondo, en la pantalla de juego | observar |
+| 1 | `Fácil` | cayendo en la lluvia del fondo, en la pantalla de juego | observar |
+| 2 | `Media` | escrita del color del fondo en `/reto-02/`, y en un comentario del código | seleccionar texto |
 | 3 | `Difícil` | **pendiente de escribir** | — |
 
 El Reto 0 existe para que **nadie se vaya con cero puntos**: se descubre
 pulsando en la caja o mirando el código de la página. Todos los retos, el 0
 incluido, tienen su página y se abren en el visor.
 
-El Reto 2 solo cae en la pantalla de juego, nunca en el marcador: en la
+El Reto 1 solo cae en la pantalla de juego, nunca en el marcador: en la
 segunda pantalla, a la vista de la cola, la bandera se leería desde el otro
-lado de la sala. Su columna baja más despacio y casi no se desvanece, para
-que se pueda leer entera; es la única escrita en minúsculas.
+lado de la sala. Su columna baja más despacio, casi no se desvanece, evita
+las columnas del borde y cae en la mitad derecha, donde el fondo está
+despejado; es la única escrita en minúsculas.
+
+El Reto 2 no depende de ningún atajo ni menú del navegador: dentro del visor,
+`Ctrl`+`U` enseña el código de la plataforma, no el del reto. La bandera está
+escrita del color del fondo, así que aparece al arrastrar el ratón. El
+comentario en el código sigue ahí para quien abra el código del marco.
+
+Las páginas de reto se ven **solo dentro del visor**, así que tienen que caber
+en un marco de 250-300 px de alto. `challenges/sitio/comun/estilo.css` tiene
+una hoja compacta por debajo de 430 px para eso.
 
 Las banderas viven en `platform/app/retos.json` y en la página de cada reto.
 Al cambiar una hay que tocar los dos sitios.

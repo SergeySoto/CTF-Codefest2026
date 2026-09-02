@@ -7,14 +7,14 @@
     "url": "http://localhost:9000/reto-00/"
   },
   {
-    "codigo": "flag{c0d1g0_fu3nt3}",
+    "codigo": "flag{lluvia_de_d4t0s}",
     "reto": "Reto 1",
     "dificultad": "Fácil",
     "coef": 1,
     "url": "http://localhost:9000/reto-01/"
   },
   {
-    "codigo": "flag{lluvia_de_d4t0s}",
+    "codigo": "flag{c0d1g0_fu3nt3}",
     "reto": "Reto 2",
     "dificultad": "Media",
     "coef": 2,
