@@ -62,6 +62,26 @@ ALFABETO = "0123456789ABCDEF{}[]<>/\\|=+*·:."
 # así que destaca entre el ruido en mayúsculas para quien se fije.
 BANDERA_LLUVIA = "flag{lluvia_de_d4t0s}"
 
+# Reto 2: la bandera es el NOMBRE de una cookie. Se reparte desde la pantalla
+# de juego y no desde la página del reto, que se carga dentro de un marco:
+# una navegación de primer nivel no depende ni de la caché del navegador ni
+# de cómo trate Chrome las cookies dentro de un iframe.
+BANDERA_COOKIE = "flag{c00k13_d3_4dm1n}"
+RELLENO_COOKIES = [("idioma", "es"), ("tema", "oscuro"), ("consentimiento", "1")]
+
+
+def repartir_cookies(respuesta):
+    """No se puede usar respuesta.set_cookie(): el módulo cookies de Python
+    rechaza las llaves en el nombre (RFC 6265), aunque el navegador las
+    acepte. Se escribe la cabecera a mano."""
+    galletas = RELLENO_COOKIES + [(BANDERA_COOKIE, secrets.token_hex(16))]
+    for nombre, valor in galletas:
+        respuesta.headers.append(
+            "set-cookie",
+            f"{nombre}={valor}; Path=/; Max-Age=7200; SameSite=Lax",
+        )
+    return respuesta
+
 
 def lluvia(columnas: int = 26, con_bandera: bool = False):
     """Columnas de código cayendo, generadas en el servidor: cero JS.
@@ -160,7 +180,7 @@ async def jugar(request: Request):
         return RedirectResponse("/", status_code=303)
     if not en_curso(jugador):
         return RedirectResponse("/fin", status_code=303)
-    return plantillas.TemplateResponse(
+    return repartir_cookies(plantillas.TemplateResponse(
         request,
         "jugar.html",
         {
@@ -170,7 +190,7 @@ async def jugar(request: Request):
             "duracion": DURACION,
             "lluvia": lluvia(con_bandera=True),
         },
-    )
+    ))
 
 
 @app.post("/enviar")
