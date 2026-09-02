@@ -85,12 +85,23 @@ píxel, líneas de barrido, viñeta y lluvia de código de fondo. Se respeta
 El día del evento:
 
 ```bash
-cp .env.example .env      # y cambiar CTF_ADMIN_TOKEN
 ./start-day.sh            # levanta todo y abre las dos pantallas
 ```
 
-`start-day.sh` arranca con `-f docker-compose.yml` a propósito: la
-configuración de desarrollo nunca llega al stand.
+No hay nada que configurar: ni fichero de entorno, ni token, ni secreto.
+`start-day.sh` arranca con `-f docker-compose.yml` a propósito, para que la
+configuración de desarrollo nunca llegue al stand.
+
+La duración se cambia con `CTF_DURACION` (segundos, 300 por defecto) si
+alguna vez hace falta, por ejemplo para probar:
+
+```bash
+CTF_DURACION=30 docker compose up --build
+```
+
+La plataforma no expone ninguna ruta de administración. Si algún día se añade
+una (corregir un tanteo, vaciar el marcador), **entonces** habrá que ponerle
+autenticación; hoy no hay nada que proteger.
 
 ## Desarrollo
 

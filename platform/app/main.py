@@ -17,7 +17,6 @@ from .scoring import normalizar, puntos
 
 BASE = pathlib.Path(__file__).parent
 DURACION = int(os.environ.get("CTF_DURACION", 300))
-ADMIN_TOKEN = os.environ.get("CTF_ADMIN_TOKEN", "")
 COOKIE = "ctf_jugador"
 
 plantillas = Jinja2Templates(directory=BASE / "templates")
@@ -295,18 +294,3 @@ async def api_marcador():
             "SELECT apodo, puntos FROM jugadores ORDER BY puntos DESC, empezado_en LIMIT 15"
         ).fetchall()
     return JSONResponse([dict(f) for f in top])
-
-
-# --------------------------------------------------------------------- admin
-
-@app.post("/admin/reset")
-async def admin_reset(request: Request):
-    """Cierra la sesión en curso. No borra nada del marcador."""
-    if not ADMIN_TOKEN or request.headers.get("X-Token") != ADMIN_TOKEN:
-        return JSONResponse({"error": "no autorizado"}, status_code=403)
-    with db.conexion() as con:
-        con.execute(
-            "UPDATE jugadores SET cerrado_en = ? WHERE cerrado_en IS NULL",
-            (time.time(),),
-        )
-    return JSONResponse({"estado": "ok"})

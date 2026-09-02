@@ -2,8 +2,6 @@
 # Arranque de la mañana. Levanta todo y abre las dos pantallas.
 set -euo pipefail
 cd "$(dirname "$0")"
-[ -f .env ] || { echo "Falta .env — copia .env.example y cambia el token."; exit 1; }
-
 docker compose -f docker-compose.yml up -d --build
 
 echo -n "Esperando a la plataforma"
