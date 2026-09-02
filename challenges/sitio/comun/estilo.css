@@ -68,7 +68,9 @@ kbd {
    En un monitor bajo el marco se queda en 250-300 px y la página tiene que
    caber ahí: si no, la pista se va por debajo y nadie la lee. */
 @media (max-height: 430px) {
-  body { padding: 1rem 1.5rem; font-size: .95rem; line-height: 1.45; }
+  body { padding: .9rem 1.5rem; font-size: .9rem; line-height: 1.35; }
+  .pasos { margin-top: .5rem; }
+  .pasos li { margin-bottom: 0; }
   h1 { font-size: 1.5rem; margin: 0 0 .6rem; }
   .grande { font-size: 1.15rem; line-height: 1.2; }
   .apunte { margin-top: .8rem; padding-left: 1.2ch; }
@@ -76,26 +78,18 @@ kbd {
   ul a { padding: .5rem 1ch; }
 }
 
-/* --- tarjeta de acceso (Reto 2) --- */
-.tarjeta-acceso { border: 1px solid var(--p-linea); padding: .9rem 1.2rem; margin-top: 1rem; }
-.tarjeta-acceso label { display: block; color: var(--p-bajo); font-size: .9rem; margin-bottom: .5rem; }
-.tarjeta-acceso .fila { display: flex; align-items: center; gap: 1ch; }
-.tarjeta-acceso .clave { color: var(--p-bajo); }
-.tarjeta-acceso input {
-  flex: 1; min-width: 8ch;
-  font: inherit; color: var(--p-max);
-  background: transparent; border: 1px solid var(--p-linea); border-radius: 0;
-  padding: .35rem 1ch;
-}
-.tarjeta-acceso input:focus { outline: none; border-color: var(--p-med); }
-.tarjeta-acceso input:focus-visible { outline: 1px solid var(--p-alto); outline-offset: 2px; }
-.tarjeta-acceso button {
+/* --- pasos y botón (Reto 2) --- */
+.pasos { margin: .8rem 0 0; padding-left: 3ch; color: var(--p-med); }
+.pasos li { margin-bottom: .25rem; }
+.pasos b { color: var(--p-alto); }
+button {
   font: inherit; cursor: pointer;
   color: var(--p-alto); background: transparent;
   border: 1px solid var(--p-linea); border-radius: 0;
-  padding: .35rem 1.5ch; text-transform: uppercase; letter-spacing: .12em;
+  padding: .4rem 1.5ch; text-transform: uppercase; letter-spacing: .12em;
 }
-.tarjeta-acceso button:hover { color: var(--vidrio); background: var(--p-alto); }
+button:hover { color: var(--vidrio); background: var(--p-alto); text-shadow: none; }
+button:focus-visible { outline: 1px solid var(--p-alto); outline-offset: 2px; }
 
 .bandera {
   font-family: "VT323", "Inconsolata", monospace;

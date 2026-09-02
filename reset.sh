@@ -14,10 +14,14 @@ command -v xsel >/dev/null && xsel -bc 2>/dev/null || true   # portapapeles
 # abandonada caduca sola a los cinco minutos.
 docker compose -f docker-compose.yml restart retos >/dev/null                # retos a su estado inicial
 
-google-chrome --kiosk --incognito \
+# --app y no --kiosk: el modo kiosco de Chrome desactiva las herramientas de
+# desarrollo, y el Reto 2 se resuelve justamente ahí. --app da la misma
+# ventana sin barra de direcciones ni pestañas, pero con F12 disponible.
+google-chrome --app=http://localhost:8000 \
+  --start-fullscreen \
   --user-data-dir="$PERFIL" \
   --disable-session-crashed-bubble \
   --no-first-run \
-  http://localhost:8000 >/dev/null 2>&1 &
+  --no-default-browser-check >/dev/null 2>&1 &
 
 echo "Listo para el siguiente jugador."

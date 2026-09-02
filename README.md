@@ -34,7 +34,7 @@ El boca a boca es la mecánica principal del juego.
 |---|---|---|---|
 | 0 | `Fácil` | en la sugerencia de la propia caja de texto | fijarse |
 | 1 | `Fácil` | cayendo en la lluvia del fondo, en la pantalla de juego | observar |
-| 2 | `Media` | detrás de una cookie: nginx solo la sirve si `rol=admin` | cambiar una cookie |
+| 2 | `Media` | es el **nombre** de una cookie que manda el servidor | abrir las cookies del navegador |
 | 3 | `Difícil` | **pendiente de escribir** | — |
 
 El Reto 0 existe para que **nadie se vaya con cero puntos**: se descubre
@@ -47,15 +47,18 @@ lado de la sala. Su columna baja más despacio, casi no se desvanece, evita
 las columnas del borde y cae en la mitad derecha, donde el fondo está
 despejado; es la única escrita en minúsculas.
 
-El Reto 2 va por cookie. Al entrar, nginx reparte `rol=invitado` y sirve
-`denegado.html`; si la cookie dice `admin`, sirve `concedido.html`, que es
-donde está la bandera. **La bandera nunca sale del servidor mientras la
-cookie no lo merezca**, así que no está en el código de la página que ve el
-jugador, y `concedido.html` es `internal`: escribir su dirección da 404.
+El Reto 2 va por cookie. Al entrar, nginx manda cuatro cookies; una de ellas
+se **llama** `flag{...}` y su valor es aleatorio (`$request_id`). La bandera
+no está en el HTML: se lee en el navegador, en **F12 → Application →
+Cookies**. Las llaves no son legales en un nombre de cookie según la RFC,
+pero Chrome las acepta; está comprobado en el navegador, no solo en la
+respuesta de nginx.
 
-La página enseña la cookie en un campo editable, porque un principiante no va
-a abrir las herramientas de desarrollo, y en modo kiosco puede que ni
-existan. Ningún reto puede depender de un atajo o un menú del navegador.
+Por eso **la pantalla del jugador ya no va en modo kiosco**: `--kiosk`
+desactiva las herramientas de desarrollo y el reto sería imposible.
+`reset.sh` abre Chrome con `--app` y `--start-fullscreen`, que da la misma
+ventana sin barra de direcciones ni pestañas, pero con F12 disponible. La
+pantalla pública del marcador sí sigue en kiosco: nadie la toca.
 
 Ojo con una particularidad de las cookies: **no distinguen el puerto**. Su
 ámbito es el host y la ruta, así que `localhost:8000` y `localhost:9000`
