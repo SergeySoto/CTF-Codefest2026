@@ -58,19 +58,44 @@ def en_curso(jugador) -> bool:
 # katakana caería en otra fuente y se rompería la rejilla de caracteres.
 ALFABETO = "0123456789ABCDEF{}[]<>/\\|=+*·:."
 
+# Reto 2: una de las columnas de la lluvia lleva la bandera. Va en minúsculas,
+# así que destaca entre el ruido en mayúsculas para quien se fije.
+BANDERA_LLUVIA = "flag{lluvia_de_d4t0s}"
 
-def lluvia(columnas: int = 26):
-    """Columnas de código cayendo, generadas en el servidor: cero JS."""
+
+def lluvia(columnas: int = 26, con_bandera: bool = False):
+    """Columnas de código cayendo, generadas en el servidor: cero JS.
+
+    La columna portadora solo cae en la pantalla de juego. En el marcador
+    (segunda pantalla, a la vista de toda la cola) la bandera se leería desde
+    el otro lado de la sala y el reto dejaría de serlo.
+    """
     rnd = random.Random()
-    return [
-        {
-            "texto": "".join(rnd.choice(ALFABETO) for _ in range(34)),
+    portadora = rnd.randrange(columnas) if con_bandera else -1
+    gotas = []
+    for i in range(columnas):
+        if i == portadora:
+            relleno = 8
+            arriba = rnd.randrange(relleno + 1)
+            texto = (
+                "".join(rnd.choice(ALFABETO) for _ in range(arriba))
+                + BANDERA_LLUVIA
+                + "".join(rnd.choice(ALFABETO) for _ in range(relleno - arriba))
+            )
+            # más lenta y con su propio desvanecido: si cayera como las demás,
+            # el degradado se comería medio código y no habría reto, solo suerte
+            dur, clave = round(rnd.uniform(19.0, 24.0), 1), True
+        else:
+            texto = "".join(rnd.choice(ALFABETO) for _ in range(34))
+            dur, clave = round(rnd.uniform(7.5, 17.0), 1), False
+        gotas.append({
+            "texto": texto,
             "izq": round(i * (100 / columnas) + rnd.uniform(-1.2, 1.2), 2),
-            "dur": round(rnd.uniform(7.5, 17.0), 1),
+            "dur": dur,
             "esp": round(rnd.uniform(-14.0, 0.0), 1),
-        }
-        for i in range(columnas)
-    ]
+            "clave": clave,
+        })
+    return gotas
 
 
 def retos_con_estado(jugador_id: int):
@@ -147,7 +172,7 @@ async def jugar(request: Request):
             "retos": retos_con_estado(jugador["id"]),
             "restantes": int(restantes(jugador)),
             "duracion": DURACION,
-            "lluvia": lluvia(),
+            "lluvia": lluvia(con_bandera=True),
         },
     )
 

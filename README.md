@@ -28,11 +28,25 @@ El boca a boca es la mecánica principal del juego.
 9. Las reglas se muestran en pantalla y se explican en voz alta antes de empezar.
 10. Al final del día, quien más puntos tenga se lleva el premio.
 
-### Reto 0
+### Los retos
 
-La primera bandera está escondida en la sugerencia de la propia caja de texto
-(`flag{fl4g_f4c1l}`). Se descubre pulsando en la caja o mirando el código de la
-página. Está para que **nadie se vaya con cero puntos**.
+| # | Dificultad | Dónde está la bandera | Habilidad |
+|---|---|---|---|
+| 0 | `Fácil` | en la sugerencia de la propia caja de texto | fijarse |
+| 1 | `Fácil` | en un comentario del código fuente de `/reto-01/` | ver código fuente |
+| 2 | `Media` | cayendo en la lluvia del fondo, en la pantalla de juego | observar |
+| 3 | `Difícil` | **pendiente de escribir** | — |
+
+El Reto 0 existe para que **nadie se vaya con cero puntos**: se descubre
+pulsando en la caja o mirando el código de la página.
+
+El Reto 2 solo cae en la pantalla de juego, nunca en el marcador: en la
+segunda pantalla, a la vista de la cola, la bandera se leería desde el otro
+lado de la sala. Su columna baja más despacio y casi no se desvanece, para
+que se pueda leer entera; es la única escrita en minúsculas.
+
+Las banderas viven en `platform/app/retos.json` y en la página de cada reto.
+Al cambiar una hay que tocar los dos sitios.
 
 ## Puntuación
 

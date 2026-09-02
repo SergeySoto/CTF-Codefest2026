@@ -32,3 +32,16 @@ ul a {
   transition:background-color .12s, color .12s;
 }
 ul a:hover { background:rgba(99,232,92,.1); color:var(--p-max); }
+
+.apunte {
+  border-left: 2px solid var(--p-linea);
+  padding-left: 1.5ch;
+  color: var(--p-bajo);
+  margin-top: 2rem;
+}
+.apunte b { color: var(--p-alto); font-weight: 700; }
+kbd {
+  border: 1px solid var(--p-linea);
+  padding: 0 .5ch;
+  color: var(--p-alto);
+}

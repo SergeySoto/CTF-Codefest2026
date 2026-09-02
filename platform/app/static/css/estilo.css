@@ -68,7 +68,7 @@ body {
 
 .tubo, .lluvia { position: fixed; inset: 0; pointer-events: none; }
 
-.lluvia { z-index: 0; overflow: hidden; opacity: .1; }
+.lluvia { z-index: 0; overflow: hidden; opacity: .17; }
 
 .lluvia i {
   position: absolute;
@@ -86,6 +86,13 @@ body {
   /* el rastro se apaga hacia arriba, como el fósforo al decaer */
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 55%, transparent);
           mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 55%, transparent);
+}
+
+/* La columna que lleva la bandera casi no se desvanece: hay que poder leerla
+   entera, si no el reto depende de pillarla en el instante bueno. */
+.lluvia i.clave {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
 }
 
 @keyframes caer {

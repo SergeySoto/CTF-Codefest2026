@@ -28,7 +28,7 @@
   finish review, the verdict, and DESIGN.md
 -->
   <div class="lluvia" aria-hidden="true">
-    {% for c in lluvia %}<i style="left:{{ c.izq }}%;animation-duration:{{ c.dur }}s;animation-delay:{{ c.esp }}s">{{ c.texto }}</i>{% endfor %}
+    {% for c in lluvia %}<i{% if c.clave %} class="clave"{% endif %} style="left:{{ c.izq }}%;animation-duration:{{ c.dur }}s;animation-delay:{{ c.esp }}s">{{ c.texto }}</i>{% endfor %}
   </div>
   <div class="tubo" aria-hidden="true"></div>
 
