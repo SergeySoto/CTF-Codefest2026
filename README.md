@@ -34,7 +34,7 @@ El boca a boca es la mecánica principal del juego.
 |---|---|---|---|
 | 0 | `Fácil` | en la sugerencia de la propia caja de texto | fijarse |
 | 1 | `Fácil` | cayendo en la lluvia del fondo, en la pantalla de juego | observar |
-| 2 | `Media` | escrita del color del fondo en `/reto-02/`, y en un comentario del código | seleccionar texto |
+| 2 | `Media` | detrás de una cookie: nginx solo la sirve si `rol=admin` | cambiar una cookie |
 | 3 | `Difícil` | **pendiente de escribir** | — |
 
 El Reto 0 existe para que **nadie se vaya con cero puntos**: se descubre
@@ -47,10 +47,22 @@ lado de la sala. Su columna baja más despacio, casi no se desvanece, evita
 las columnas del borde y cae en la mitad derecha, donde el fondo está
 despejado; es la única escrita en minúsculas.
 
-El Reto 2 no depende de ningún atajo ni menú del navegador: dentro del visor,
-`Ctrl`+`U` enseña el código de la plataforma, no el del reto. La bandera está
-escrita del color del fondo, así que aparece al arrastrar el ratón. El
-comentario en el código sigue ahí para quien abra el código del marco.
+El Reto 2 va por cookie. Al entrar, nginx reparte `rol=invitado` y sirve
+`denegado.html`; si la cookie dice `admin`, sirve `concedido.html`, que es
+donde está la bandera. **La bandera nunca sale del servidor mientras la
+cookie no lo merezca**, así que no está en el código de la página que ve el
+jugador, y `concedido.html` es `internal`: escribir su dirección da 404.
+
+La página enseña la cookie en un campo editable, porque un principiante no va
+a abrir las herramientas de desarrollo, y en modo kiosco puede que ni
+existan. Ningún reto puede depender de un atajo o un menú del navegador.
+
+Ojo con una particularidad de las cookies: **no distinguen el puerto**. Su
+ámbito es el host y la ruta, así que `localhost:8000` y `localhost:9000`
+comparten el mismo tarro. Por eso la cookie `rol` que reparte nginx se ve
+desde la plataforma, y la de sesión `ctf_jugador` se ve desde las páginas de
+reto. No es explotable (cada jugador solo ve la suya), pero conviene saberlo
+antes de escribir un reto que enseñe `document.cookie` en pantalla.
 
 Las páginas de reto se ven **solo dentro del visor**, así que tienen que caber
 en un marco de 250-300 px de alto. `challenges/sitio/comun/estilo.css` tiene

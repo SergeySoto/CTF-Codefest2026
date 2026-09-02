@@ -75,3 +75,31 @@ kbd {
   ul { gap: .4rem; }
   ul a { padding: .5rem 1ch; }
 }
+
+/* --- tarjeta de acceso (Reto 2) --- */
+.tarjeta-acceso { border: 1px solid var(--p-linea); padding: .9rem 1.2rem; margin-top: 1rem; }
+.tarjeta-acceso label { display: block; color: var(--p-bajo); font-size: .9rem; margin-bottom: .5rem; }
+.tarjeta-acceso .fila { display: flex; align-items: center; gap: 1ch; }
+.tarjeta-acceso .clave { color: var(--p-bajo); }
+.tarjeta-acceso input {
+  flex: 1; min-width: 8ch;
+  font: inherit; color: var(--p-max);
+  background: transparent; border: 1px solid var(--p-linea); border-radius: 0;
+  padding: .35rem 1ch;
+}
+.tarjeta-acceso input:focus { outline: none; border-color: var(--p-med); }
+.tarjeta-acceso input:focus-visible { outline: 1px solid var(--p-alto); outline-offset: 2px; }
+.tarjeta-acceso button {
+  font: inherit; cursor: pointer;
+  color: var(--p-alto); background: transparent;
+  border: 1px solid var(--p-linea); border-radius: 0;
+  padding: .35rem 1.5ch; text-transform: uppercase; letter-spacing: .12em;
+}
+.tarjeta-acceso button:hover { color: var(--vidrio); background: var(--p-alto); }
+
+.bandera {
+  font-family: "VT323", "Inconsolata", monospace;
+  font-size: 1.8rem; color: var(--p-max);
+  text-shadow: 0 0 .05em currentColor, 0 0 .6em rgba(182,255,143,.6);
+  margin: .5rem 0;
+}

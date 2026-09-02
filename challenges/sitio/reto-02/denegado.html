@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reto 2</title>
+  <link rel="stylesheet" href="/comun/estilo.css">
+</head>
+<body>
+  <main>
+    <h1>Reto 2</h1>
+    <p class="grande">acceso denegado</p>
+    <p>Esta zona es solo para el personal. Tú entras como <b id="quien">…</b>.</p>
+
+    <div class="tarjeta-acceso">
+      <label for="rol">Tu tarjeta de acceso, guardada en este navegador:</label>
+      <div class="fila">
+        <span class="clave">rol =</span>
+        <input id="rol" autocomplete="off" spellcheck="false">
+        <button id="guardar" type="button">Guardar</button>
+      </div>
+    </div>
+
+    <p class="apunte">
+      <b>Pista.</b> La web no sabe quién eres: se lo pregunta a tu propio
+      navegador cada vez que abres la página. Y lo que guarda tu navegador
+      lo puedes cambiar tú.
+    </p>
+  </main>
+
+  <script>
+    const leer = (n) =>
+      document.cookie.split("; ").find((c) => c.startsWith(n + "="))?.slice(n.length + 1) ?? "";
+
+    const campo = document.getElementById("rol");
+    campo.value = leer("rol") || "invitado";
+    document.getElementById("quien").textContent = campo.value;
+
+    document.getElementById("guardar").addEventListener("click", () => {
+      const v = campo.value.trim();
+      if (!v) return;
+      document.cookie = `rol=${encodeURIComponent(v)}; Path=/; Max-Age=7200; SameSite=Lax`;
+      location.reload();
+    });
+    campo.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("guardar").click();
+    });
+  </script>
+</body>
+</html>
