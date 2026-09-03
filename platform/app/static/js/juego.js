@@ -155,7 +155,10 @@
       visor.src = url;
       visor.hidden = false;
       visorVacio.hidden = true;
-      visorTitulo.textContent = `[ ${fila.querySelector(".nombre").textContent} ]`;
+      const nombreReto = fila.querySelector(".nombre").textContent.trim();
+      visorTitulo.textContent = nombreReto.toUpperCase() === "RETO 3"
+        ? "[ visor ]"
+        : `[ ${nombreReto} ]`;
 
       document.querySelectorAll(".reto.mirando").forEach((o) => o.classList.remove("mirando"));
       fila.classList.add("mirando");
