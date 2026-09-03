@@ -460,7 +460,13 @@ button:active { transform: translateY(1px); }
 }
 a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 
-.reto .nombre { letter-spacing: .04em; }
+.reto .nombre {
+  font-size: .95rem;
+  letter-spacing: .03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .reto.hecha { color: var(--p-max); }
 .reto.hecha .nombre { text-shadow: var(--halo-max); }
