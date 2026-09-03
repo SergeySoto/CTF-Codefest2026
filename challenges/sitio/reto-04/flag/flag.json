@@ -1,0 +1,19 @@
+{
+  "servidor": "cluster-patos-01",
+  "estado": "activo",
+  "total_registros": 12,
+  "patos": [
+    { "id": 1, "especie": "Pato Azulón", "habito": "Diurno", "estado_vuelo": true, "codigo": "PAT-9812" },
+    { "id": 2, "especie": "Pato Mandarín", "habito": "Crepuscular", "estado_vuelo": true, "codigo": "PAT-3301" },
+    { "id": 3, "especie": "Pato Colorado", "habito": "Diurno", "estado_vuelo": false, "codigo": "PAT-7741" },
+    { "id": 4, "especie": "Pato Joyuyo", "habito": "Nocturno", "estado_vuelo": true, "codigo": "PAT-1092" },
+    { "id": 5, "especie": "Pato Cuchareta", "habito": "Diurno", "estado_vuelo": true, "codigo": "PAT-0042" },
+    { "id": 6, "especie": "Pato Cabeza Roja", "habito": "Diurno", "estado_vuelo": false, "codigo": "PAT-5519" },
+    { "id": 7, "especie": "Pato Silbón", "habito": "Crepuscular", "estado_vuelo": true, "clave_secreta": "flag{p4t0_1nt3rc3pt4d0_2026}" },
+    { "id": 8, "especie": "Pato Rabudo", "habito": "Diurno", "estado_vuelo": true, "codigo": "PAT-6630" },
+    { "id": 9, "especie": "Pato Zampullín", "habito": "Nocturno", "estado_vuelo": false, "codigo": "PAT-8812" },
+    { "id": 10, "especie": "Pato Tarro Blanco", "habito": "Diurno", "estado_vuelo": true, "codigo": "PAT-4421" },
+    { "id": 11, "especie": "Pato Serreta", "habito": "Crepuscular", "estado_vuelo": true, "codigo": "PAT-9903" },
+    { "id": 12, "especie": "Pato Porrón", "habito": "Diurno", "estado_vuelo": false, "codigo": "PAT-1154" }
+  ]
+}
