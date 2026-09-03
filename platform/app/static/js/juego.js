@@ -156,9 +156,7 @@
       visor.hidden = false;
       visorVacio.hidden = true;
       const nombreReto = fila.querySelector(".nombre").textContent.trim();
-      visorTitulo.textContent = nombreReto.toUpperCase() === "RETO 3"
-        ? "[ visor ]"
-        : `[ ${nombreReto} ]`;
+      visorTitulo.textContent = `[ ${nombreReto} ]`;
 
       document.querySelectorAll(".reto.mirando").forEach((o) => o.classList.remove("mirando"));
       fila.classList.add("mirando");
