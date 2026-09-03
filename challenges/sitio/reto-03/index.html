@@ -8,14 +8,44 @@
   <style>
     /* Solo en este reto: la terminal quiere todo el ancho del visor,
        no la columna de lectura de 70ch que usan los demás retos. */
-    main { max-width: none; }
+    body { padding: 1rem 1.5rem; }
+    main {
+      max-width: none;
+      min-height: calc(100vh - 2rem);
+      display: flex;
+      flex-direction: column;
+    }
+    h1 { margin: 0; }
+    .subtitulo {
+      margin: .2rem 0 .5rem;
+      color: var(--p-bajo);
+      letter-spacing: .04em;
+    }
+    .terminal {
+      margin-top: 0;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .terminal-pantalla {
+      flex: 1;
+      height: auto;
+      min-height: 8rem;
+    }
+    .apunte {
+      margin-top: .55rem;
+      padding-left: 1ch;
+      font-size: .9rem;
+      color: rgba(53, 149, 59, .86);
+    }
+    .apunte b { color: var(--p-med); }
   </style>
 </head>
 <body>
   <main>
-    <h1>Reto 3</h1>
-    <p>Sistema de archivos de la empresa, montado en modo lectura.
-       Alguien mencionó una copia de seguridad &laquo;olvidada&raquo;...</p>
+    <h1>RETO 3</h1>
+    <p class="subtitulo">Modo lectura / acceso limitado</p>
 
     <div class="terminal">
       <div class="terminal-pantalla" id="pantalla" aria-live="polite"></div>
@@ -27,7 +57,7 @@
       </div>
     </div>
 
-    <p class="apunte"><b>Pista:</b> escribe <kbd>help</kbd> para ver los comandos.</p>
+    <p class="apunte"><b>Pista:</b> escribe <kbd>help</kbd>.</p>
   </main>
 
 <script>
