@@ -124,7 +124,6 @@
     const fila = document.getElementById(`reto-${id}`);
     if (!fila) return;
     fila.classList.add("hecha");
-    fila.querySelector(".marca-ok").textContent = "[✓]";
   }
 
   // Una vez acertada la bandera que sugiere el navegador, la sugerencia
