@@ -169,7 +169,7 @@ p, li, .reglas span, .aviso.ok, .recibo b { text-shadow: var(--halo); }
 
 /* La capa de rótulos no brilla: es lo más pequeño y lo más tenue, y el halo
    era justo lo que la emborronaba bajo el barrido. */
-.estado, .rotulo, .reto .dif, .pie, .marca small, .total small,
+.estado, .rotulo, .pie, .marca small, .total small,
 .salida button, input::placeholder { text-shadow: none; }
 
 p { margin: 0 0 var(--paso); }
@@ -450,9 +450,8 @@ button:active { transform: translateY(1px); }
 
 .reto {
   display: grid;
-  grid-template-columns: 5ch 1fr 12ch 5ch;
-  gap: 1ch;
-  align-items: baseline;
+  grid-template-columns: 1fr;
+  align-items: center;
   padding: calc(var(--paso) * .7) 1ch;
   border-bottom: 1px solid var(--p-muerto);
   color: var(--p-med);
@@ -461,14 +460,16 @@ button:active { transform: translateY(1px); }
 }
 a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 
-.reto .id { color: var(--p-bajo); }
-.reto .nombre { letter-spacing: .04em; }
-.reto .dif { color: var(--p-bajo); font-size: .95rem; letter-spacing: .06em; }
-.reto .marca-ok { color: var(--p-bajo); text-align: right; }
+.reto .nombre {
+  font-size: .95rem;
+  letter-spacing: .03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .reto.hecha { color: var(--p-max); }
 .reto.hecha .nombre { text-shadow: var(--halo-max); }
-.reto.hecha .marca-ok { color: var(--p-max); text-shadow: var(--halo-max); }
 
 /* los puntos ganados suben hacia el marcador */
 @keyframes ascender {
@@ -604,7 +605,7 @@ a.reto:hover { background: rgba(99, 232, 92, .09); color: var(--p-max); }
 }
 
 .reto.mirando { background: rgba(99, 232, 92, .12); color: var(--p-max); }
-.reto.mirando .id::before { content: "›"; margin-right: .5ch; color: var(--p-max); }
+.reto.mirando .nombre::before { content: "› "; color: var(--p-max); }
 
 @media (max-width: 62rem) {
   .taller { grid-template-columns: 1fr; }
@@ -620,13 +621,10 @@ body.pantalla-fin .pantalla { width: min(130ch, 100%); }
 .total { margin-bottom: calc(var(--paso) * 2.5); }
 .total small { margin-top: .4rem; }
 
-/* pantallas estrechas: la dificultad baja a su propia línea en vez de
-   empujar la casilla de estado fuera del panel */
+/* pantallas estrechas: compactamos márgenes para mantener legibilidad */
 @media (max-width: 40rem) {
   .pantalla { padding-left: var(--paso); padding-right: var(--paso); }
-  .reto { grid-template-columns: 4ch 1fr 4ch; row-gap: 0; }
-  .reto .dif { grid-column: 2 / 3; grid-row: 2; }
-  .reto .marca-ok { grid-column: 3; grid-row: 1; }
+  .reto { grid-template-columns: 1fr; }
 }
 
 

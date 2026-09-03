@@ -1,28 +1,28 @@
 [
   {
     "codigo": "flag{fl4g_f4c1l}",
-    "reto": "Reto 0",
+    "reto": "Autocompletado del navegador",
     "dificultad": "Fácil",
     "coef": 1,
     "url": "http://localhost:9000/reto-00/"
   },
   {
     "codigo": "flag{lluvia_de_d4t0s}",
-    "reto": "Reto 1",
+    "reto": "Lluvia de caracteres",
     "dificultad": "Fácil",
     "coef": 1,
     "url": "http://localhost:9000/reto-01/"
   },
   {
     "codigo": "flag{c00k13_d3_4dm1n}",
-    "reto": "Reto 2",
+    "reto": "Inspección de cookies",
     "dificultad": "Media",
     "coef": 2,
     "url": "http://localhost:9000/reto-02/"
   },
   {
     "codigo": "flag{ls_l4_r3v3l4_l0_0cult0}",
-    "reto": "Reto 3",
+    "reto": "Terminal en modo lectura",
     "dificultad": "Difícil",
     "coef": 3,
     "url": "http://localhost:9000/reto-03/"
