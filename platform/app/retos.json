@@ -26,5 +26,12 @@
     "dificultad": "Difícil",
     "coef": 3,
     "url": "http://localhost:9000/reto-03/"
+  },
+   {
+    "codigo": "flag{p4t0_1nt3rc3pt4d0_2026}",
+    "reto": "Respuesta intermedia",
+    "dificultad": "Difícil",
+    "coef": 3,
+    "url": "http://localhost:9000/reto-04/"
   }
 ]
