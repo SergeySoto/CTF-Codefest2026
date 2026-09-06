@@ -193,6 +193,22 @@ async def jugar(request: Request):
     ))
 
 
+@app.get("/flag", response_class=HTMLResponse)
+async def flag(request: Request):
+    jugador = jugador_actual(request)
+    if not jugador:
+        return RedirectResponse("/", status_code=303)
+    if not en_curso(jugador):
+        return RedirectResponse("/fin", status_code=303)
+    return plantillas.TemplateResponse(
+        request,
+        "flag.html",
+        {
+            "lluvia": lluvia(),
+        },
+    )
+
+
 @app.post("/enviar")
 async def enviar(request: Request, bandera: str = Form(...)):
     jugador = jugador_actual(request)
