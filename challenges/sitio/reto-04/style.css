@@ -1,0 +1,22 @@
+.btn-flash {
+  background: transparent;
+  color: var(--p-alto);
+  border: 1px solid var(--p-alto);
+  font-family: var(--pantalla);
+  padding: 0.5rem 1.5ch;
+  text-shadow: var(--halo);
+  cursor: pointer;
+}
+
+.btn-flash:hover {
+  box-shadow: inset 0 0 0 1px var(--p-max);
+  color: var(--p-max);
+}
+
+/* Inversión instantánea al presionar */
+.btn-flash:active {
+  background: var(--p-alto);
+  color: var(--vidrio);
+  text-shadow: none;
+  transform: scale(0.98); /* Ligera micro-pulsación */
+}

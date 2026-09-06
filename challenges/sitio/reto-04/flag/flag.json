@@ -1,0 +1,13 @@
+{
+  "servidor": "cluster-patos-01",
+  "estado": "activo",
+  "total_registros": 12,
+  "patos": [
+    { "id": 1, "especie": "Pato Azulón", "habito": "Diurno", "estado_vuelo": true, "codigo": "PAT-9812" },
+    { "id": 2, "especie": "Pato Mandarín", "habito": "Crepuscular", "estado_vuelo": true, "codigo": "PAT-3301" },
+    { "id": 3, "especie": "Pato Colorado", "habito": "Diurno", "estado_vuelo": false, "codigo": "PAT-7741" },
+    { "id": 4, "especie": "Pato Silbón", "habito": "Crepuscular", "estado_vuelo": true, "clave_secreta": "flag{p4t0_1nt3rc3pt4d0_2026}" }
+    { "id": 5, "especie": "Pato Cuchareta", "habito": "Diurno", "estado_vuelo": true, "codigo": "PAT-0042" },
+    { "id": 6, "especie": "Pato Cabeza Roja", "habito": "Diurno", "estado_vuelo": false, "codigo": "PAT-5519" },
+  ]
+}
