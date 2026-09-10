@@ -33,5 +33,12 @@
     "dificultad": "Difícil",
     "coef": 3,
     "url": "http://localhost:9000/reto-04/"
+  },
+  {
+    "codigo": "flag{c4mb14_l4_url}",
+    "reto": "Una dirección diferente",
+    "dificultad": "Fácil",
+    "coef": 1,
+    "url": "http://localhost:9000/reto-05/"
   }
 ]
