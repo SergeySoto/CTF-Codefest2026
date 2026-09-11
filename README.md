@@ -189,6 +189,16 @@ Cierra Chrome, borra el perfil temporal, la carpeta de descargas y el portapapel
 reinicia los contenedores de retos y vuelve a abrir el kiosco en la pantalla de reglas.
 **No toca `data/ctf.db`**: el marcador es acumulativo durante toda la jornada.
 
+Para empezar una jornada nueva y borrar todos los jugadores y sus envíos:
+
+```powershell
+.\clear-day.ps1
+```
+
+También existe `clear-day.sh` para ejecutarlo desde Bash. Este comando conserva
+el catálogo de banderas y no se ejecuta automáticamente desde `start-day.sh`.
+Después de limpiar, se puede arrancar la jornada con `./start-day.sh`.
+
 ## Estructura
 
 ```
