@@ -22,24 +22,30 @@ El boca a boca es la mecánica principal del juego.
 5. Los retos se abren **dentro de la pantalla**, sin perder de vista el reloj.
 6. Se puede salir a propósito con un botón; si se sale sin querer, la partida
    se recupera desde la pantalla de inicio con el tiempo que quedaba.
-7. Al acabar el tiempo se ve el tanteo **y el marcador**, con la fila del
-   jugador señalada. Si ha quedado fuera del top, su fila se añade igualmente.
-8. El marcador también se consulta desde la pantalla de inicio.
-9. Las reglas se muestran en pantalla y se explican en voz alta antes de empezar.
-10. Al final del día, quien más puntos tenga se lleva el premio.
+7. **Quien encuentra todas las banderas termina ahí mismo**: no hace falta
+   esperar al reloj ni pulsar SALIR, la pantalla pasa sola al marcador.
+8. Al acabar la partida se ve el tanteo **y el marcador entero de la jornada**,
+   con la fila del jugador señalada y puesta en el centro del panel.
+9. El marcador también se consulta desde la pantalla de inicio. Sale la
+   clasificación completa: el panel se desplaza y los empates comparten puesto.
+10. Las reglas se muestran en pantalla y se explican en voz alta antes de empezar.
+11. Al final del día, quien más puntos tenga se lleva el premio.
 
 ### Los retos
 
 | # | Dificultad | Dónde está la bandera | Habilidad |
 |---|---|---|---|
-| 0 | `Fácil` | en la sugerencia de la propia caja de texto | fijarse |
+| 0 | `Fácil` | escrita de ejemplo dentro de la caja donde se envían las banderas | fijarse |
 | 1 | `Fácil` | cayendo en la lluvia del fondo, en la pantalla de juego | observar |
 | 2 | `Media` | es el **nombre** de una cookie que manda el servidor | abrir las cookies del navegador |
-| 3 | `Difícil` | **pendiente de escribir** | — |
+| 3 | `Difícil` | en un archivo oculto de una terminal simulada | `ls -la` y `cat` |
+| 4 | `Difícil` | en una respuesta intermedia del servidor | mirar la red |
+| 5 | `Fácil` | en otra dirección de la propia plataforma | cambiar la URL |
 
-El Reto 0 existe para que **nadie se vaya con cero puntos**: se descubre
-pulsando en la caja o mirando el código de la página. Todos los retos, el 0
-incluido, tienen su página y se abren en el visor.
+El Reto 0 existe para que **nadie se vaya con cero puntos**: la bandera está
+puesta de ejemplo en el propio recuadro donde se escriben, en verde apagado,
+antes de teclear nada. Todos los retos, el 0 incluido, tienen su página y se
+abren en el visor.
 
 El Reto 1 solo cae en la pantalla de juego, nunca en el marcador: en la
 segunda pantalla, a la vista de la cola, la bandera se leería desde el otro
@@ -191,13 +197,17 @@ reinicia los contenedores de retos y vuelve a abrir el kiosco en la pantalla de 
 
 Para empezar una jornada nueva y borrar todos los jugadores y sus envíos:
 
-```powershell
-.\clear-day.ps1
+```bash
+./clear-day.sh            # .\clear-day.ps1 desde PowerShell
 ```
 
-También existe `clear-day.sh` para ejecutarlo desde Bash. Este comando conserva
-el catálogo de banderas y no se ejecuta automáticamente desde `start-day.sh`.
-Después de limpiar, se puede arrancar la jornada con `./start-day.sh`.
+Es la **única** manera de vaciar el marcador, y es a propósito: la plataforma
+no expone ninguna ruta de administración, ni ningún atajo desde la caja de
+banderas. Para borrar la jornada hay que estar delante de la máquina con una
+consola, no basta con teclear algo en la pantalla del stand.
+
+Conserva el catálogo de banderas y no se ejecuta solo desde `start-day.sh`.
+Después de limpiar, se arranca la jornada con `./start-day.sh`.
 
 ## Estructura
 
