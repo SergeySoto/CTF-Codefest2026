@@ -8,10 +8,14 @@
   <style>
     /* Solo en este reto: la terminal quiere todo el ancho del visor,
        no la columna de lectura de 70ch que usan los demás retos. */
-    body { padding: 1rem 1.5rem; }
+    body { padding: 1rem 1.5rem; overflow: hidden; }
+    /* Altura fija, no mínima: dentro del marco 100vh son 250-300 px y, si la
+       terminal pudiera crecer con su salida, la página entera se desplazaría
+       y el prompt se saldría de la vista. Aquí lo que sobra se recorta
+       dentro del panel, nunca moviendo la página. */
     main {
       max-width: none;
-      min-height: calc(100vh - 2rem);
+      height: calc(100vh - 2rem);
       display: flex;
       flex-direction: column;
     }
@@ -31,7 +35,7 @@
     .terminal-pantalla {
       flex: 1;
       height: auto;
-      min-height: 8rem;
+      min-height: 0;
     }
     .apunte {
       margin-top: .55rem;
@@ -40,6 +44,23 @@
       color: rgba(53, 149, 59, .86);
     }
     .apunte b { color: var(--p-med); }
+
+    /* Marco bajo: el visor se queda en ~250 px y en el panel caben tres
+       líneas. Aquí se recorta todo lo que no es la terminal —el subtítulo
+       es decorado— y se aprieta el interlineado de la salida, porque la
+       bandera sale en la última línea de `cat` y tiene que verse sin
+       desplazar nada. */
+    @media (max-height: 430px) {
+      body { padding: .55rem 1.5rem; }
+      main { height: calc(100vh - 1.1rem); }
+      h1 { font-size: 1.2rem; margin: 0 0 .25rem; }
+      .subtitulo { display: none; }
+      .terminal-pantalla { padding: .35rem 1ch; }
+      .terminal-linea { margin-bottom: 0; line-height: 1.25; }
+      .terminal-entrada { margin-top: .3rem; }
+      .apunte { margin-top: .3rem; font-size: .82rem; }
+      .bandera { font-size: 1.4rem; margin: .2rem 0 0; }
+    }
   </style>
 </head>
 <body>
@@ -117,9 +138,7 @@
     print('  ls -la        lista todo, incluidos ocultos y tamaños');
     print('  cd <carpeta>  entra en una carpeta');
     print('  cd ..         vuelve a la carpeta anterior');
-    print('  pwd           muestra la ruta actual');
     print('  cat <archivo> muestra el contenido de un archivo');
-    print('  clear         limpia la pantalla');
   }
 
   function cmdLs(mostrarTodo){
@@ -178,6 +197,11 @@
   function ejecutar(linea){
     const texto = linea.trim();
     if (!texto) return;
+    // Cada comando empieza con la pantalla en blanco. Dentro del marco la
+    // terminal mide pocas líneas: si se acumulara la salida aparecería una
+    // barra de desplazamiento y el resultado del comando se iría fuera de
+    // la vista, que es justo donde está la bandera.
+    pantalla.replaceChildren();
     print('usuario@stand:' + cwd + '$ ' + texto);
     const partes = texto.split(/\s+/);
     const cmd = partes[0];
