@@ -129,13 +129,27 @@ def retos_con_estado(jugador_id: int):
         ).fetchall()
 
 
-def clasificacion(limite: int = 15):
+def clasificacion():
+    """Clasificación entera, sin recortar: el marcador es el del día completo
+    y quien jugó a primera hora tiene que poder encontrarse en él.
+
+    El puesto se calcula aquí y no con el índice de la fila: dos jugadores con
+    los mismos puntos comparten puesto, y así la tabla dice lo mismo que el
+    "puesto N" de la pantalla de cierre.
+    """
     with db.conexion() as con:
-        return con.execute(
+        filas = con.execute(
             "SELECT id, apodo, puntos FROM jugadores "
-            "ORDER BY puntos DESC, empezado_en LIMIT ?",
-            (limite,),
+            "ORDER BY puntos DESC, empezado_en"
         ).fetchall()
+    tabla, puesto = [], 0
+    for i, f in enumerate(filas, start=1):
+        if not tabla or f["puntos"] != tabla[-1]["puntos"]:
+            puesto = i
+        tabla.append(
+            {"id": f["id"], "apodo": f["apodo"], "puntos": f["puntos"], "puesto": puesto}
+        )
+    return tabla
 
 
 # ------------------------------------------------------------------- páginas
@@ -317,20 +331,19 @@ async def fin(request: Request):
             "UPDATE jugadores SET cerrado_en = ? WHERE id = ? AND cerrado_en IS NULL",
             (time.time(), jugador["id"]),
         )
-        posicion = con.execute(
-            "SELECT COUNT(*) + 1 AS p FROM jugadores WHERE puntos > ?",
-            (jugador["puntos"],),
-        ).fetchone()["p"]
         encontradas = con.execute(
             """SELECT b.reto, e.puntos FROM envios e
                JOIN banderas b ON b.id = e.bandera_id
                WHERE e.jugador_id = ? ORDER BY e.en""",
             (jugador["id"],),
         ).fetchall()
-    top = clasificacion(10)
-    # si el jugador se ha quedado fuera del top, su fila se añade igualmente:
-    # nadie debe terminar sin verse en la lista.
-    fuera = not any(f["id"] == jugador["id"] for f in top)
+    # La tabla es la clasificación completa y el jugador acaba de entrar en
+    # ella: se marca su fila en vez de añadir una suelta al pie. El puesto
+    # sale de la misma tabla, así el número del tanteo y el de la fila no
+    # pueden discrepar.
+    top = clasificacion()
+    yo = next((f for f in top if f["id"] == jugador["id"]), None)
+    posicion = yo["puesto"] if yo else 1
     respuesta = plantillas.TemplateResponse(
         request,
         "fin.html",
@@ -339,7 +352,6 @@ async def fin(request: Request):
             "posicion": posicion,
             "encontradas": encontradas,
             "top": top,
-            "fuera": fuera,
             "lluvia": lluvia(),
         },
     )
@@ -351,7 +363,7 @@ async def fin(request: Request):
 async def marcador(request: Request, volver: int = 0):
     # `volver` solo lo pone el enlace de la pantalla de inicio. La pantalla
     # pública del stand abre /marcador a secas y no enseña ningún botón.
-    top = clasificacion(15)
+    top = clasificacion()
     with db.conexion() as con:
         total = con.execute("SELECT COUNT(*) AS n FROM jugadores").fetchone()["n"]
     return plantillas.TemplateResponse(
@@ -364,5 +376,6 @@ async def marcador(request: Request, volver: int = 0):
 @app.get("/api/marcador")
 async def api_marcador():
     return JSONResponse([
-        {"apodo": f["apodo"], "puntos": f["puntos"]} for f in clasificacion(15)
+        {"puesto": f["puesto"], "apodo": f["apodo"], "puntos": f["puntos"]}
+        for f in clasificacion()
     ])

@@ -37,21 +37,14 @@
 
   <section class="panel cierre-tabla linea" style="--t:300ms">
     <h2 class="titulo">[ marcador ]</h2>
-    <ol class="clasificacion">
+    <ol class="clasificacion" id="clasificacion">
       {% for j in top %}
       <li {% if j.id == jugador.id %}class="soy-yo"{% endif %}>
-        <span class="puesto">{{ '%02d'|format(loop.index) }}</span>
+        <span class="puesto">{{ '%02d'|format(j.puesto) }}</span>
         <span class="nombre">{{ j.apodo }}</span>
         <span class="pts">{{ j.puntos }}</span>
       </li>
       {% endfor %}
-      {% if fuera %}
-      <li class="soy-yo aparte">
-        <span class="puesto">{{ '%02d'|format(posicion) }}</span>
-        <span class="nombre">{{ jugador.apodo }}</span>
-        <span class="pts">{{ jugador.puntos }}</span>
-      </li>
-      {% endif %}
     </ol>
   </section>
 
@@ -63,6 +56,11 @@
 </div>
 
 <script>
+// La tabla es la del día entero: se lleva la fila del jugador al centro para
+// que se vea entre sus vecinos sin tener que buscarla desplazando la lista.
+const mia = document.querySelector(".cierre-tabla .soy-yo");
+if (mia) mia.scrollIntoView({ block: "center" });
+
 let quedan = 20;
 const n = document.getElementById("cuenta");
 setInterval(() => {

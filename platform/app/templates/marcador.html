@@ -8,7 +8,7 @@
 <ol class="clasificacion" id="clasificacion">
   {% for j in top %}
   <li>
-    <span class="puesto">{{ '%02d'|format(loop.index) }}</span>
+    <span class="puesto">{{ '%02d'|format(j.puesto) }}</span>
     <span class="nombre">{{ j.apodo }}</span>
     <span class="pts">{{ j.puntos }}</span>
   </li>
@@ -21,10 +21,11 @@
 </div>
 
 <script>
-const fila = (j, i) => {
+const lista = document.getElementById("clasificacion");
+const fila = (j) => {
   const li = document.createElement("li");
   li.innerHTML = '<span class="puesto"></span><span class="nombre"></span><span class="pts"></span>';
-  li.children[0].textContent = String(i + 1).padStart(2, "0");
+  li.children[0].textContent = String(j.puesto).padStart(2, "0");
   li.children[1].textContent = j.apodo;   // textContent: nunca inyectamos HTML de un apodo
   li.children[2].textContent = j.puntos;
   return li;
@@ -32,7 +33,11 @@ const fila = (j, i) => {
 setInterval(async () => {
   try {
     const top = await (await fetch("/api/marcador")).json();
-    document.getElementById("clasificacion").replaceChildren(...top.map(fila));
+    // La lista es la del día entero y se desplaza. Si al refrescar volviera
+    // arriba, nadie podría leer más allá de los primeros puestos.
+    const desplazado = lista.scrollTop;
+    lista.replaceChildren(...top.map(fila));
+    lista.scrollTop = desplazado;
   } catch {}
 }, 5000);
 </script>

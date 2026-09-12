@@ -664,14 +664,15 @@ body.pantalla-fin .pantalla { width: min(130ch, 100%); }
 .cierre-tabla .clasificacion .puesto,
 .cierre-tabla .clasificacion .pts { font-size: 1.5rem; }
 
-/* la fila del jugador: si ha quedado fuera del top se añade separada */
+/* La fila del jugador dentro de la clasificación completa: al terminar, el
+   JS la lleva al centro del panel, y el fósforo quemado la distingue de sus
+   vecinos sin sacarla de su puesto. */
 .clasificacion .soy-yo {
   color: var(--p-max);
   text-shadow: var(--halo-max);
   border-bottom-color: var(--p-linea);
 }
 .clasificacion .soy-yo .puesto { color: var(--p-alto); }
-.clasificacion .aparte { border-top: 1px dashed var(--p-linea); margin-top: var(--paso); }
 
 .relevo {
   margin: 0;
