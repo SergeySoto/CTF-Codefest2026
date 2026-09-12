@@ -278,6 +278,26 @@ async def enviar(request: Request, bandera: str = Form(...)):
             "SELECT puntos FROM jugadores WHERE id = ?", (jugador["id"],)
         ).fetchone()["puntos"]
 
+        # Tercera forma de terminar, además de SALIR y del reloj: no quedan
+        # banderas. Se cierra aquí, en el servidor, para que /fin no devuelva
+        # al jugador a un tablero ya vacío por su guardia de en_curso(). Los
+        # puntos ya están contados al segundo del envío, así que acabar antes
+        # no le quita nada.
+        faltan = con.execute(
+            """SELECT COUNT(*) AS n FROM banderas b
+               WHERE b.activa = 1
+                 AND NOT EXISTS (SELECT 1 FROM envios e
+                                 WHERE e.bandera_id = b.id
+                                   AND e.jugador_id = ?)""",
+            (jugador["id"],),
+        ).fetchone()["n"]
+        completado = faltan == 0
+        if completado:
+            con.execute(
+                "UPDATE jugadores SET cerrado_en = ? WHERE id = ? AND cerrado_en IS NULL",
+                (ahora, jugador["id"]),
+            )
+
     return JSONResponse(
         {
             "estado": "correcta",
@@ -285,6 +305,7 @@ async def enviar(request: Request, bandera: str = Form(...)):
             "reto": acierto["reto"],
             "puntos": ganados,
             "total": total,
+            "completado": completado,
         }
     )
 

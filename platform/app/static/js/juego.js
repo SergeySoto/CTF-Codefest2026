@@ -48,7 +48,7 @@
     } catch { /* sin respuesta: seguimos con el contador local */ }
   }
 
-  setInterval(() => {
+  const latido = setInterval(() => {
     restantes = Math.max(0, restantes - 1);
     pintar();
     if (restantes === 0) location.assign("/fin");
@@ -99,6 +99,7 @@
         ascender(d.puntos);
         marcarHecha(d.bandera_id);
         retirarSugerencia(valor);
+        if (d.completado) { rematar(d.puntos); return; }
         decir(`CORRECTA · ${d.reto} · +${d.puntos} puntos`, "ok");
         break;
       case "repetida":
@@ -119,6 +120,17 @@
     }
     caja.focus();
   });
+
+  // El servidor ya ha cerrado la sesión: no quedan banderas. Se espera a que
+  // termine de subir el "+puntos" (1,15 s) y se lea el aviso antes de pasar
+  // al marcador; irse en el mismo instante parecería un fallo, no un final.
+  function rematar(ganados) {
+    decir(`¡TODAS! · +${ganados} · fin de la partida`, "ok");
+    caja.disabled = true;
+    formulario.querySelector("button").disabled = true;
+    clearInterval(latido);
+    setTimeout(() => location.assign("/fin"), 2500);
+  }
 
   function marcarHecha(id) {
     const fila = document.getElementById(`reto-${id}`);
